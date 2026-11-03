@@ -139,6 +139,12 @@ aparece automaticamente nas telas de login/cadastro.
 
 | Comando | Uso |
 |---|---|
+| `npm run dev` | servidor de desenvolvimento (localhost:3000) |
+| `npm run build` / `npm start` | build de produção / rodar produção |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript (sem emitir) |
+| `npm test` | testes unitários (Vitest) — rate limit, schemas de senha, minimização LGPD do payload do MP |
+| `npm run e2e` | bateria de regressão end-to-end (32 verificações) |
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm run build` / `start` | Build e produção local |
 | `npm run lint` / `typecheck` | ESLint (estilo) e verificação de tipos |
@@ -210,7 +216,10 @@ demonstrativos); o checkout exige o banco (com Docker:
 - [x] **Fase 10a/10b** — Correções da auditoria (ver seção abaixo)
 - [x] **Fase 11** — Pós-venda essencial: "esqueci minha senha" + e-mails
   (recuperação de senha autosserviço e confirmação de pedido via Resend)
-- [ ] **Fase 12** — Testes (Vitest/Playwright), upgrade next@16, deploy real
+- [x] **Fase 12a** — Next.js 16 (proxy de borda, fecha vuln postcss),
+  mercadopago@3, NextAuth beta.32, Vitest (`npm test`), e2e oficial
+  (`npm run e2e`) e repositório git
+- [ ] **Fase 12b** — Deploy real (GitHub → Vercel + Neon + Resend + MP produção)
 
 Guias já disponíveis: [`docs/guia-glb.md`](docs/guia-glb.md) e
 [`docs/checklist-lancamento.md`](docs/checklist-lancamento.md).
