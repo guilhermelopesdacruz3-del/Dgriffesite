@@ -1,0 +1,14 @@
+# Netlify — build de produção.
+# O plugin Next.js cria as funções serverless (SSR, rotas API, actions)
+# automaticamente; publishes de .next. Variáveis de ambiente ficam NO PAINEL
+# (Site configuration → Environment variables), nunca commitadas aqui.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

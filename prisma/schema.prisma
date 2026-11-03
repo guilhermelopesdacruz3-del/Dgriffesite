@@ -1,0 +1,816 @@
+// ============================================================
+// Ótica — Schema do banco (PostgreSQL + Prisma)
+// Modelos: User, Address, Product, ProductVariant, ProductImage,
+// Model3D, Category, Brand, Collection, Tag, Cart, CartItem, Order,
+// OrderItem, Payment, Shipment, Coupon, Review, Favorite,
+// Prescription, LensPackage, StockMovement, StockReservation,
+// Banner, Page, Setting, AuditLog, TryOnEvent + modelos do NextAuth.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Ao usar Neon/Supabase com PgBouncer, descomente e aponte para conexão direta:
+  // directUrl = env("DIRECT_URL")
+}
+
+// ============================== ENUMS ==============================
+
+enum Role {
+  CUSTOMER
+  ATTENDANT
+  ADMIN
+}
+
+enum ProductType {
+  FRAMES // óculos de grau
+  SUNGLASSES
+  CONTACT_LENSES
+  ACCESSORIES
+}
+
+enum Gender {
+  FEMININE
+  MASCULINE
+  UNISEX
+  KIDS
+}
+
+enum FrameShape {
+  ROUND
+  SQUARE
+  AVIATOR
+  CAT_EYE
+  RECTANGULAR
+  OVAL
+  BUTTERFLY
+  WRAP
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+  BOLETO
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  IN_PROCESS
+  REJECTED
+  REFUNDED
+  CANCELLED
+}
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  AWAITING_PRESCRIPTION_VALIDATION
+  PAID
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  PENDING
+  CREATED
+  IN_TRANSIT
+  DELIVERED
+  ERROR
+}
+
+enum PrescriptionStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  HIDDEN
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+enum CouponScope {
+  ALL
+  CATEGORY
+  BRAND
+  PRODUCT
+}
+
+enum StockReason {
+  INITIAL
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  RETURN
+  CANCELLATION
+  RESERVATION
+  RELEASE
+}
+
+enum ReservationStatus {
+  ACTIVE
+  RELEASED
+  CONSUMED
+}
+
+enum TryOnEventType {
+  OPENED
+  PHOTO_TAKEN
+  ADDED_TO_CART
+}
+
+// ============================== AUTH (NextAuth) ==============================
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String? // nulo = conta só com Google
+  role           Role      @default(CUSTOMER)
+  phone          String?
+  document       String? // CPF (opcional)
+  image          String?
+  isBlocked      Boolean   @default(false)
+  marketingOptIn Boolean   @default(false) // LGPD: false por padrão (consentimento explícito)
+  tryOnPhotosOpt Boolean   @default(false) // LGPD: consentimento p/ fotos do provador
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Reset de senha (Fase 11): guardamos só o HASH do token — quem roubar o
+  // banco não obtém o link. Expira em 1h e é apagado no uso.
+  resetTokenHash      String?
+  resetTokenExpiresAt DateTime?
+
+  addresses Address[]
+
+  accounts       Account[]
+  sessions       Session[]
+  orders         Order[]
+  reviews        Review[]
+  favorites      Favorite[]
+  prescriptions  Prescription[]
+  carts          Cart[]
+  auditLogs      AuditLog[]
+  stockMovements StockMovement[]
+  tryOnEvents    TryOnEvent[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Endereço de entrega do cliente (múltiplos, com padrão)
+model Address {
+  id           String  @id @default(cuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cep          String
+  street       String
+  number       String
+  complement   String?
+  district     String
+  city         String
+  state        String
+  isDefault    Boolean @default(false)
+  receiverName String? // nome de quem recebe (opcional)
+  phone        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ============================== CATÁLOGO ==============================
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  posY        Int? // posição Y do foco da imagem usada como background
+  active      Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  parentId    String?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  products Product[]
+
+  @@index([parentId])
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  imageUrl    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products CollectionProduct[]
+}
+
+model CollectionProduct {
+  collectionId String
+  productId    String
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, productId])
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  slug   String  @unique
+  active Boolean @default(true)
+
+  products ProductTag[]
+}
+
+// Junta produto ↔ tag (muitos-para-muitos)
+model ProductTag {
+  tagId     String
+  productId String
+
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, productId])
+  @@index([productId])
+}
+
+model Product {
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  sku              String      @unique
+  type             ProductType @default(FRAMES)
+  description      String
+  shortDescription String?
+  gender           Gender      @default(UNISEX)
+  frameShape       FrameShape?
+
+  // Especificações exibidas na página do produto
+  material  String? // acetato, metal, TR90, policarbonato...
+  lensWidth Int? // largura da lente (mm)
+  bridge    Int? // ponte (mm)
+  temple    Int? // haste (mm)
+  weight    Int? // peso (g)
+
+  price        Decimal  @db.Decimal(10, 2)
+  comparePrice Decimal? @db.Decimal(10, 2) // preço "de" (promocional)
+  cost         Decimal? @db.Decimal(10, 2) // custo interno (não exibir)
+
+  isFeatured     Boolean   @default(false) // aparece em "Mais vendidos"
+  isNew          Boolean   @default(false) // selo "Lançamento"
+  active         Boolean   @default(true)
+  deletedAt      DateTime? // exclusão lógica
+  seoTitle       String?
+  seoDescription String?
+
+  brandId    String
+  categoryId String
+
+  brand       Brand               @relation(fields: [brandId], references: [id])
+  category    Category            @relation(fields: [categoryId], references: [id])
+  collections CollectionProduct[]
+  tags        ProductTag[]
+  images      ProductImage[]
+  variants    ProductVariant[]
+  model3d     Model3D[]
+  reviews     Review[]
+  favorites   Favorite[]
+  tryOnEvents TryOnEvent[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId, active])
+  @@index([brandId, active])
+  @@index([type, active])
+  @@index([createdAt])
+}
+
+model ProductVariant {
+  id                String   @id @default(cuid())
+  productId         String
+  sku               String   @unique
+  colorName         String? // ex.: "Preto fosco"
+  colorHex          String? // ex.: "#111111" (bolinha de cor)
+  size              String? // ex.: "53-17-145" ou P/M/G
+  stock             Int      @default(0)
+  lowStockThreshold Int      @default(5) // alerta de estoque baixo no admin
+  priceOverride     Decimal? @db.Decimal(10, 2) // preço por variação (raro, ex.: lente toroscope)
+  active            Boolean  @default(true)
+
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images         ProductImage[]
+  model3d        Model3D[]
+  stockMovements StockMovement[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  reservations   StockReservation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  variantId String? // se definida, a imagem pertence a uma variação de cor
+  url       String
+  alt       String?
+  position  Int     @default(0)
+  isMain    Boolean @default(false)
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([variantId])
+}
+
+// Arquivo .glb do provador virtual (por produto OU por variação de cor)
+model Model3D {
+  id        String  @id @default(cuid())
+  productId String?
+  variantId String?
+  glbUrl    String
+  sizeBytes Int
+  // Calibração salva no estúdio (Fase 7) — mesma semântica de Calibration em
+  // src/lib/provador/glasses.ts: offsets/rotações manuais + 180° em Y,
+  // esticamento e inclinação pantoscópica.
+  scale     Float   @default(1)
+  offsetX   Float   @default(0)
+  offsetY   Float   @default(0)
+  offsetZ   Float   @default(0)
+  rotX      Float   @default(0)
+  rotY      Float   @default(0)
+  rotZ      Float   @default(0)
+  turn      Boolean @default(false)
+  stretchX  Float   @default(1)
+  stretchY  Float   @default(1)
+  tilt      Float   @default(6)
+  active    Boolean @default(true)
+
+  product Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([variantId])
+}
+
+// ============================== LENTES / RECEITAS ==============================
+
+// Pacotes de lente opcionais ao comprar armação de grau "com lentes"
+model LensPackage {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  price       Decimal @db.Decimal(10, 2)
+  active      Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([active, sortOrder])
+}
+
+// Receita oftalmológica enviada pelo cliente (imagem/PDF)
+model Prescription {
+  id           String             @id @default(cuid())
+  userId       String
+  fileName     String
+  fileUrl      String
+  mimeType     String
+  sizeBytes    Int
+  status       PrescriptionStatus @default(PENDING)
+  notes        String?
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([userId, createdAt])
+}
+
+// ============================== CARRINHO ==============================
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String?  @unique // carrinho no banco só para logados; visitantes usam localStorage
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id             String  @id @default(cuid())
+  cartId         String
+  productId      String
+  variantId      String?
+  quantity       Int     @default(1)
+  withLenses     Boolean @default(false) // "com lentes" (armação de grau)
+  lensPackageId  String?
+  prescriptionId String?
+
+  cart         Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  lensPackage  LensPackage?    @relation(fields: [lensPackageId], references: [id], onDelete: SetNull)
+  prescription Prescription?   @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+}
+
+// ============================== PEDIDOS ==============================
+
+model Order {
+  id   String @id @default(cuid())
+  code String @unique // código amigável exibido ao cliente, ex.: "PZ-9F3KQ2"
+
+  /**
+   * Token de acesso para pedidos SEM conta (guest): a página do pedido exige
+   * este token quando não há dono — o link único é a única "chave" que o
+   * convidado guarda. Com conta, o acesso é pela sessão (dono) ou ADMIN.
+   */
+  accessToken String?
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  email         String
+  customerName  String
+  customerPhone String
+
+  status OrderStatus @default(AWAITING_PAYMENT)
+
+  subtotal     Decimal @db.Decimal(10, 2)
+  discount     Decimal @default(0) @db.Decimal(10, 2)
+  shippingCost Decimal @default(0) @db.Decimal(10, 2)
+  total        Decimal @db.Decimal(10, 2)
+
+  couponCode    String? // código aplicado (snapshot na linha)
+  discountLabel String? // "cupom PRIMEIRA15 (-15%)"
+
+  // Entrega: método + endereço como snapshot (endereços mudam; o pedido não)
+  shippingMethod   String // "ME-EXPRESS", "CORREIOS-SEDEX", "RETRIEVAL"... 
+  shippingCarrier  String? // "Correios", "Melhor Envio"
+  shippingService  String? // "Sedex", "Pac", etc.
+  shippingDeadline Int? // dias estimados
+  shipCep          String
+  shipStreet       String
+  shipNumber       String
+  shipComplement   String?
+  shipDistrict     String
+  shipCity         String
+  shipState        String
+
+  trackingCode String?
+  trackingUrl  String?
+
+  customerNotes String?
+  internalNotes String?
+
+  items             OrderItem[]
+  payments          Payment[]
+  shipment          Shipment?
+  stockReservations StockReservation[]
+
+  paidAt      DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // FK opcional: o produto pode ser removido; o snapshot preserva o histórico
+  productId String?
+  product   Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  productName         String
+  variantSku          String?
+  snapshot            Json // { name, brand, color, size, image, specs... } — imutabilidade
+  quantity            Int
+  unitPrice           Decimal       @db.Decimal(10, 2) // preço unitário do produto (sem lente)
+  withLenses          Boolean       @default(false)
+  lensPackage         LensPackage?  @relation(fields: [lensPackageId], references: [id], onDelete: SetNull)
+  lensPackageId       String?
+  lensPackageSnapshot Json? // { name, price }
+  prescriptionId      String?
+  prescription        Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+}
+
+model Payment {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  method            PaymentMethod
+  provider          String        @default("mercadopago")
+  providerPaymentId String?       @unique // id do pagamento no Mercado Pago (idempotência do webhook)
+  status            PaymentStatus @default(PENDING)
+  amount            Decimal       @db.Decimal(10, 2)
+  installments      Int           @default(1)
+
+  pixQrCodeBase64 String? // imagem QR code (Pix)
+  pixCode         String? // copia-e-cola
+  boletoUrl       String?
+  expiresAt       DateTime? // expiração do Pix/boleto
+  paidAt          DateTime?
+  raw             Json? // payload bruto do gateway (auditoria)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model Shipment {
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  carrier       String
+  serviceName   String?
+  externalId    String?
+  status        ShipmentStatus @default(PENDING)
+  trackingCode  String?
+  labelUrl      String?
+  cost          Decimal?       @db.Decimal(10, 2)
+  estimatedDays Int?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Reserva de estoque durante o pagamento (libera se expirar)
+model StockReservation {
+  id         String            @id @default(cuid())
+  orderId    String
+  order      Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId  String
+  variant    ProductVariant    @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity   Int
+  status     ReservationStatus @default(ACTIVE)
+  expiresAt  DateTime
+  releasedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([variantId, status, expiresAt])
+}
+
+// ============================== CUPONS ==============================
+
+model Coupon {
+  id           String      @id @default(cuid())
+  code         String      @unique
+  description  String?
+  type         CouponType
+  value        Decimal     @db.Decimal(10, 2) // % ou valor fixo
+  minOrder     Decimal?    @db.Decimal(10, 2)
+  maxUses      Int? // null = ilimitado
+  perUserLimit Int?
+  usedCount    Int         @default(0)
+  startsAt     DateTime?
+  endsAt       DateTime?
+  scope        CouponScope @default(ALL)
+  scopeRefs    String[] // ids de CATEGORY / BRAND / PRODUCT quando aplicável
+  active       Boolean     @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================== SOCIAL / CONTEÚDO ==============================
+
+model Review {
+  id               String       @id @default(cuid())
+  productId        String
+  product          Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId           String?
+  user             User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName       String
+  rating           Int // 1..5
+  title            String?
+  text             String
+  status           ReviewStatus @default(PENDING)
+  verifiedPurchase Boolean      @default(false) // só clientes que compraram podem avaliar
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([productId, status])
+  @@index([createdAt])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ============================== ADMIN / CONTEÚDO ==============================
+
+// Banner por slot: home_hero, home_alert... (editável no admin)
+model Banner {
+  id        String  @id @default(cuid())
+  slot      String
+  title     String
+  subtitle  String?
+  imageUrl  String?
+  videoUrl  String?
+  ctaLabel  String?
+  ctaHref   String?
+  ctaLabel2 String?
+  ctaHref2  String?
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slot, sortOrder])
+}
+
+// Páginas institucionais (sobre, lojas, contato, FAQ, LGPD...) em markdown
+model Page {
+  id             String  @id @default(cuid())
+  slug           String  @unique
+  title          String
+  content        String // markdown simples
+  seoTitle       String?
+  seoDescription String?
+  active         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  key       String   @id // ex.: "announcement", "freeShippingAbove"
+  value     String // conteúdo textual/JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Log de auditoria das ações administrativas
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorEmail String? // snapshot (ex.: exclusão de conta)
+  action     String // "order.status_change", "product.delete"...
+  entity     String // "Order", "Product"...
+  entityId   String?
+  data       Json? // diff/antes-depois
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// Telemetria do provador (aberturas e conversão no dashboard)
+model TryOnEvent {
+  id        String         @id @default(cuid())
+  productId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event     TryOnEventType @default(OPENED)
+  createdAt DateTime       @default(now())
+
+  @@index([productId, createdAt])
+}
+
+// ============================== ESTOQUE ==============================
+
+// Histórico de movimentações (delta: +entrada, -saída)
+model StockMovement {
+  id        String         @id @default(cuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  delta     Int
+  reason    StockReason
+  note      String?
+  refId     String? // id do pedido/movimento de origem
+  userId    String? // admin que ajustou
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime       @default(now())
+
+  @@index([variantId, createdAt])
+}

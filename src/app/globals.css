@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-ink;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-accent-600 text-white;
+  }
+
+  /* Foco visível consistente para navegação por teclado (a11y) */
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-600 ring-offset-2 ring-offset-white;
+  }
+}
+
+@layer utilities {
+  /* Oculta scrollbar mantendo o scroll funcional (carrosséis) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

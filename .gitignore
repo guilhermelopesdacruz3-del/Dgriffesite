@@ -1,0 +1,29 @@
+# Dependências
+node_modules
+
+# Build e caches do Next.js
+.next
+out
+next-env.d.ts
+
+# Produção
+build
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Banco local (Docker) e dumps
+.volumes
+
+# Prisma
+prisma/*.db
+
+# Logs e sistema
+*.log
+.DS_Store
+
+# Vercel
+.vercel
+.neon
