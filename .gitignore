@@ -27,3 +27,6 @@ prisma/*.db
 # Vercel
 .vercel
 .neon
+
+# Artefatos locais
+tsconfig.tsbuildinfo
