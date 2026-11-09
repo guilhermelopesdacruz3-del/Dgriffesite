@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Recuperar senha",
-  description: "Esqueceu a senha da sua conta Pierre? Receba um link para criar nova senha.",
+  description: "Esqueceu a senha da sua conta Óptica Performance? Receba um link para criar nova senha.",
 };
 
 /**

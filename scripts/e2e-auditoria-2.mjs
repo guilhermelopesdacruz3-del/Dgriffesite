@@ -56,7 +56,7 @@ const login = await fetch(`${BASE}/api/auth/callback/credentials`, {
   },
   body: new URLSearchParams({
     csrfToken,
-    email: "admin@pierre.test",
+    email: "admin@opticaperformance.test",
     password: "Admin@1234",
     callbackUrl: "/admin",
   }),
@@ -89,7 +89,7 @@ const bad = await fetch(`${BASE}/api/auth/callback/credentials`, {
   },
   body: new URLSearchParams({
     csrfToken: t2,
-    email: "admin@pierre.test",
+    email: "admin@opticaperformance.test",
     password: "senha-wrong-111",
     callbackUrl: "/entrar?erro=1",
   }),

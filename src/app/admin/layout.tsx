@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="border-b border-stone-200 bg-white px-4 pt-4 lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <p className="font-serif text-lg">
-            Painel <span className="text-accent-700">Pierre</span>
+            Painel <span className="text-accent-700">Óptica Performance</span>
           </p>
           <div className="flex items-center gap-1">
             <a
@@ -54,7 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <aside className="sticky top-8 hidden h-fit w-60 shrink-0 lg:block">
           <div className="rounded-3xl border border-stone-200 bg-white p-5">
             <p className="px-2 text-[11px] font-semibold uppercase tracking-widest text-stone-400">
-              Painel Pierre
+              Painel Óptica Performance
             </p>
             <p className="mb-5 mt-1 truncate px-2 text-sm">
               {session.user.name ?? "admin"}

@@ -33,7 +33,7 @@ export function LgpdPanel() {
       const u = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = u;
-      a.download = `meus-dados-pierre-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `meus-dados-optica-performance-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(u);
     } finally {

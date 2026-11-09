@@ -67,7 +67,7 @@ export async function requestPasswordReset(values: unknown): Promise<ResetAction
       const base = storeConfig.siteUrl.replace(/\/$/, "");
       const link = `${base}/recuperar-senha?token=${token}`;
       const mail = layoutMail(
-        "Nova senha da Pierre",
+        "Nova senha da Óptica Performance",
         `<p>Olá, ${escapeHtml(user.name.split(" ")[0])}!</p>
          <p>Recebemos um pedido para criar uma nova senha para a sua conta.
          Use o botão abaixo — o link <strong>vale apenas 1 hora</strong> e só
@@ -77,7 +77,7 @@ export async function requestPasswordReset(values: unknown): Promise<ResetAction
          </p>
          <p style="font-size:13px;color:#78716c;word-break:break-all;">Se o botão não abrir, copie este endereço: ${link}</p>`,
       );
-      await sendMail({ to: email, subject: "Crie uma nova senha — Pierre Ótica", ...mail });
+      await sendMail({ to: email, subject: "Crie uma nova senha — Óptica Performance", ...mail });
     }
   } catch (err) {
     // Silencioso: o retorno ao usuário não muda nem se o e-mail falhar.
@@ -134,7 +134,7 @@ export async function confirmPasswordReset(
        O link antigo perdeu a validade; sua conta segue segura.</p>
        <p><a href="${base}/entrar" style="color:#1c1917;">Entrar em minha conta</a></p>`,
     );
-    await sendMail({ to: user.email, subject: "Sua senha foi trocada — Pierre Ótica", ...mail });
+    await sendMail({ to: user.email, subject: "Sua senha foi trocada — Óptica Performance", ...mail });
 
     return { ok: true, message: "Senha trocada! Use a nova para entrar." };
   } catch (err) {
