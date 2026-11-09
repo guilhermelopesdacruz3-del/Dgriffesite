@@ -41,7 +41,13 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
         return;
       }
 
-      router.push(callbackUrl || "/minha-conta");
+      // Admin vai direto ao painel; cliente/visitante para a conta dele.
+      const sess = await fetch("/api/auth/session", { cache: "no-store" })
+        .then((r) => r.json() as Promise<{ user?: { role?: string } | null }>)
+        .catch(() => null);
+      router.push(
+        sess?.user?.role === "ADMIN" ? "/admin" : (callbackUrl || "/minha-conta"),
+      );
       router.refresh();
     } catch {
       setServerError("Erro inesperado. Tente novamente.");
