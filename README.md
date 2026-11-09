@@ -300,6 +300,25 @@ Redis em multi-instância — A14); dependências `npm audit fix --force`
 5. Com `RESEND_API_KEY` configurada: os mesmos passos (as mensagens chegam no
    e-mail de verdade em vez do console)
 
+### Fotos de óculos de verdade (troca de imagens)
+
+Os produtos, categorias e o banner da home agora usam **fotos reais de
+armações** (antes eram placeholders aleatórios do picsum):
+
+- 66 fotos de produto (22 produtos × 3 vistas) + 5 de categoria + 1 hero,
+  tudo em `public/produtos/` — fontes com **licença aberta** (Unsplash),
+  baixadas por script utilitário e listadas em `prisma/eyewear-images.ts`.
+- O seed consome esse módulo (`PRODUCT_IMAGES`, `CATEGORY_IMAGES`,
+  `HERO_IMAGE`); os fallbacks sem banco (`catalog.ts`, `content.ts`) também
+  apontam para as fotos locais.
+- `next.config.mjs` não permite mais hotlink do picsum (`remotePatterns` só
+  com o endpoint de uploads) — todo o catálogo é servido do próprio site.
+- **Para trocar a foto de um produto na prática:** basta substituir o arquivo
+  `public/produtos/<slug-do-produto>-1.jpg` (e os `-2`/`-3` das outras vistas)
+  por um .jpg novo — nada de banco ou código precisa mudar.
+- O `e2e` (`scripts/e2e-auditoria.mjs`) agora resolve o ID do produto direto
+  do banco — não fica "velho" quando o seed é rodado de novo.
+
 ### Testar a conta do cliente (Fase 5)
 
 1. Entre pelo `/entrar` com o cliente do seed (**cliente@pierre.test /

@@ -4,7 +4,15 @@
  * token de convidado (A2/A3), rota demo com gate (A1), rate limit de cupom (A23).
  */
 const BASE = "http://localhost:3000";
-const AURORA = "cmvsk5b6s0001c0x8a5i0zo9v";
+// ID do produto resolvido do banco (o seed recria IDs — hardcode ficava velho)
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+const AURORA = (
+  await new PrismaClient().product.findUniqueOrThrow({
+    where: { slug: "lumen-aura-redonda" },
+    select: { id: true },
+  })
+).id;
 let passed = 0;
 const failed = [];
 

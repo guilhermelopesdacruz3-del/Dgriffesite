@@ -4,7 +4,7 @@
  * ============================================================
  * • 1 admin + 1 cliente (senhas em bcrypt)
  * • 8 marcas fictícias, 5 categorias
- * • 20 produtos com variações de cor, estoque e imagens (placeholders)
+ * • 20 produtos com variações de cor, estoque e imagens (fotos de armações reais)
  * • Pacotes de lente, cupom de primeira compra, banners, páginas e settings
  *
  * Rodar:  npm run db:seed
@@ -16,6 +16,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import type { ProductType, Gender, FrameShape } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { PRODUCT_IMAGES, CATEGORY_IMAGES, HERO_IMAGE } from "./eyewear-images";
 
 const prisma = new PrismaClient();
 
@@ -57,11 +58,11 @@ const BRANDS = [
 ];
 
 const CATEGORIES = [
-  { name: "Óculos de grau", slug: "oculos-de-grau", img: "https://picsum.photos/seed/otica-cat-grau/900/1100" },
-  { name: "Óculos de sol", slug: "oculos-de-sol", img: "https://picsum.photos/seed/otica-cat-sol/900/1100" },
-  { name: "Óculos infantis", slug: "oculos-infantis", img: "https://picsum.photos/seed/otica-cat-kids/900/1100" },
-  { name: "Óculos esportivos", slug: "oculos-esportivos", img: "https://picsum.photos/seed/otica-cat-sport/900/1100" },
-  { name: "Lentes de contato", slug: "lentes-de-contato", img: "https://picsum.photos/seed/otica-cat-lentes/900/1100" },
+  { name: "Óculos de grau", slug: "oculos-de-grau", img: CATEGORY_IMAGES["oculos-de-grau"] },
+  { name: "Óculos de sol", slug: "oculos-de-sol", img: CATEGORY_IMAGES["oculos-de-sol"] },
+  { name: "Óculos infantis", slug: "oculos-infantis", img: CATEGORY_IMAGES["oculos-infantis"] },
+  { name: "Óculos esportivos", slug: "oculos-esportivos", img: CATEGORY_IMAGES["oculos-esportivos"] },
+  { name: "Lentes de contato", slug: "lentes-de-contato", img: CATEGORY_IMAGES["lentes-de-contato"] },
 ];
 
 const COLORS = {
@@ -154,7 +155,7 @@ const BANNER_HERO = {
   title: "Enxergue melhor, vista melhor.",
   subtitle:
     "Armações selecionadas com atendimento óptico de verdade — agora com provador virtual 3D.",
-  imageUrl: "https://picsum.photos/seed/otica-hero/2000/1200",
+  imageUrl: HERO_IMAGE,
   ctaLabel: "Ver coleção",
   ctaHref: "/produtos",
   ctaLabel2: "Experimentar no provador",
@@ -472,12 +473,13 @@ async function main() {
       });
     }
 
-    // 3 imagens placeholder determinísticas por produto
+    // 3 imagens reais por produto (fotos de armações — ver eyewear-images.ts)
+    const vistas = PRODUCT_IMAGES[slugify(p.name)];
     for (let i = 1; i <= 3; i++) {
       await prisma.productImage.create({
         data: {
           productId: product.id,
-          url: `https://picsum.photos/seed/${slug}-${i}/900/1125`,
+          url: vistas?.[i - 1] ?? `/produtos/${slug}-${i}.jpg`,
           alt: `${p.name} — vista ${i}`,
           position: i,
           isMain: i === 1,

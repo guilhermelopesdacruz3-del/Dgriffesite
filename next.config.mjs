@@ -15,15 +15,13 @@ const staticOnly = isStaticExport
 
 // ---------------------------------------------------------------
 // Origens de imagens permitidas (auditoria A19): a lista é FIXA —
-// picsum (seed/demo) + o endpoint do armazenamento dos uploads.
+// apenas o endpoint do armazenamento dos uploads. Todo o catálogo usa
+// imagens locais de public/produtos/ (não há mais hotlink de placeholders).
 // O antigamente usado `hostname: "**"` deixava next/image carregar
 // imagem de QUALQUER host https, o que facilita rastreamento de
 // visualizações e conteúdo misto após um eventual comprometimento.
 // ---------------------------------------------------------------
-const imageRemotePatterns = [
-  { protocol: "https", hostname: "picsum.photos" },
-  { protocol: "https", hostname: "fastly.picsum.photos" },
-];
+const imageRemotePatterns = [];
 for (const envUrl of [process.env.AWS_ENDPOINT_URL_S3]) {
   if (envUrl) {
     const { protocol, hostname } = new URL(envUrl);
@@ -92,10 +90,6 @@ const nextConfig = {
   images: {
     unoptimized: isStaticExport,
     remotePatterns: imageRemotePatterns,
-  },
-  eslint: {
-    // O lint roda separadamente (`npm run lint`); o build exige apenas tipos válidos.
-    ignoreDuringBuilds: true,
   },
 };
 

@@ -48,7 +48,7 @@ const heroFallback: BannerData = {
   title: "Enxergue melhor, vista melhor.",
   subtitle:
     "Armações selecionadas com atendimento óptico de verdade — agora com provador virtual 3D.",
-  imageUrl: "https://picsum.photos/seed/otica-hero/2000/1200",
+  imageUrl: "/produtos/hero.jpg",
   ctaLabel: "Ver coleção",
   ctaHref: "/produtos",
   ctaLabel2: "Experimentar no provador",

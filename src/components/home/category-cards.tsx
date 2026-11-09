@@ -3,12 +3,12 @@ import Link from "next/link";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Container } from "@/components/ui/container";
 
-// Categorias em destaque (cards grandes com imagem務)
+// Categorias em destaque (cards grandes com imagem)
 const categories = [
-  { title: "Óculos de grau", desc: "Armações para o dia a dia", href: "/produtos?tipo=grau", img: "https://picsum.photos/seed/otica-cat-grau/900/1100" },
-  { title: "Óculos de sol", desc: "Proteção UV com estilo", href: "/produtos?tipo=sol", img: "https://picsum.photos/seed/otica-cat-sol/900/1100" },
-  { title: "Infantil", desc: "Leves, resistentes e coloridos", href: "/produtos?publico=infantil", img: "https://picsum.photos/seed/otica-cat-kids/900/1100" },
-  { title: "Esportivo", desc: "Desempenho na medida", href: "/produtos?tipo=esportivo", img: "https://picsum.photos/seed/otica-cat-sport/900/1100" },
+  { title: "Óculos de grau", desc: "Armações para o dia a dia", href: "/produtos?tipo=grau", img: "/produtos/cat-oculos-de-grau.jpg" },
+  { title: "Óculos de sol", desc: "Proteção UV com estilo", href: "/produtos?tipo=sol", img: "/produtos/cat-oculos-de-sol.jpg" },
+  { title: "Infantil", desc: "Leves, resistentes e coloridos", href: "/produtos?publico=infantil", img: "/produtos/cat-oculos-infantis.jpg" },
+  { title: "Esportivo", desc: "Desempenho na medida", href: "/produtos?tipo=esportivo", img: "/produtos/cat-oculos-esportivos.jpg" },
 ];
 
 export function CategoryCards() {
