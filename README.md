@@ -1,4 +1,4 @@
-﻿# Óptica Performance — E-commerce com provador virtual 3D
+# D'Griffe — E-commerce com provador virtual 3D
 
 > **Como trocar o nome da loja:** edite **`src/lib/config.ts`** → `storeConfig.name`
 > (ou defina `NEXT_PUBLIC_STORE_NAME` no `.env`). É o único ponto necessário.
@@ -75,8 +75,8 @@ Sem Docker? Aponte `DATABASE_URL` para o Neon/Supabase e pule o passo 3.
 
 | Papel | E-mail | Senha |
 |---|---|---|
-| Admin | `admin@opticaperformance.test` | `Admin@1234` |
-| Cliente | `cliente@opticaperformance.test` | `Cliente@1234` |
+| Admin | `admin@dgriffe.test` | `Admin@1234` |
+| Cliente | `cliente@dgriffe.test` | `Cliente@1234` |
 
 > ⚠️ Senhas default — troque (`SEED_ADMIN_PASSWORD` no `.env` antes do seed,
 > e depois diretamente no banco) antes de qualquer uso real.
@@ -85,7 +85,7 @@ Sem Docker? Aponte `DATABASE_URL` para o Neon/Supabase e pule o passo 3.
 
 Com o banco rodando e seed aplicado:
 
-1. `http://localhost:3000/entrar` → entre com `admin@opticaperformance.test` / `Admin@1234`
+1. `http://localhost:3000/entrar` → entre com `admin@dgriffe.test` / `Admin@1234`
 2. O header passa a mostrar sua inicial; `/minha-conta` direciona ao painel
 3. Conta admin vê o botão "Ir para o painel admin" → `/admin` (bloqueado para não-admins)
 4. Deslogado, `/minha-conta` redireciona para login com retorno automático
@@ -291,7 +291,7 @@ Redis em multi-instância — A14); dependências `npm audit fix --force`
 #### Testar a recuperação de senha
 
 1. Saia da conta (ou use uma janela anônima) → `/entrar` → **"Esqueci minha
-   senha"** → informe `cliente@opticaperformance.test` → veja a mensagem neutra
+   senha"** → informe `cliente@dgriffe.test` → veja a mensagem neutra
 2. Em desenvolvimento: o link está no **console do servidor** (linha
    `[email·fallback]`, campo "copie este endereço")
 3. Abra o link → crie uma senha nova (letras + números) → "Senha trocada!"
@@ -321,7 +321,7 @@ armações** (antes eram placeholders aleatórios do picsum):
 
 ### Testar a conta do cliente (Fase 5)
 
-1. Entre pelo `/entrar` com o cliente do seed (**cliente@opticaperformance.test /
+1. Entre pelo `/entrar` com o cliente do seed (**cliente@dgriffe.test /
    Cliente@1234**) — ou crie uma conta nova em `/criar-conta` (o login já
    acontece na hora)
 2. **Visão geral** (`/minha-conta`): últimos pedidos, endereço padrão,
@@ -342,7 +342,7 @@ armações** (antes eram placeholders aleatórios do picsum):
 
 ### Testar o admin (Fase 6)
 
-Entre em `/admin` com o administrador do seed (**admin@opticaperformance.test / Admin@1234**) —
+Entre em `/admin` com o administrador do seed (**admin@dgriffe.test / Admin@1234**) —
 rota protegida por middleware *e* re-verificada no servidor.
 
 1. **Dashboard** (`/admin`): KPIs de pedidos em aberto/ativos, receita

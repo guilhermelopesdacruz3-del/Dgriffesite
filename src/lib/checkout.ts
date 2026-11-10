@@ -677,7 +677,7 @@ async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
        </p>
        <p style="font-size:13px;color:#78716c;word-break:break-all;">Se o botão não abrir, copie este endereço: ${link}</p>`,
     );
-    await sendMail({ to: order.email, subject: `Pedido ${order.code} recebido — Óptica Performance`, ...mail });
+    await sendMail({ to: order.email, subject: `Pedido ${order.code} recebido — D'Griffe`, ...mail });
   } catch (err) {
     console.error("[email-pedido] falha ao enviar confirmação:", err);
   }

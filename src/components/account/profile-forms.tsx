@@ -230,7 +230,7 @@ export function PreferencesForm({
           className="mt-0.5 h-4 w-4 rounded border-stone-300 text-accent-600 focus:ring-accent-600"
         />
         <span className="text-sm leading-relaxed">
-          Quero receber novidades e ofertas da Óptica Performance por e-mail/WhatsApp.
+          Quero receber novidades e ofertas da D'Griffe por e-mail/WhatsApp.
           <span className="block text-xs text-stone-500">
             Você pode desativar quando quiser (LGPD — Lei 13.709/2018).
           </span>

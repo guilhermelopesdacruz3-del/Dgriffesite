@@ -2,7 +2,7 @@
  * Envio de e-mail (Fase 11) — via Resend.
  *
  * Com RESEND_API_KEY configurada: envia de verdade (o domínio de origem é
- * `EMAIL_FROM`, ex.: "Óptica Performance <loja@seudominio.com.br>").
+ * `EMAIL_FROM`, ex.: "D'Griffe <loja@seudominio.com.br>").
  * Sem chave (desenvolvimento/demonstração): NÃO quebra o fluxo — registra o
  * e-mail no console do servidor, o que permite testar reset de senha e
  * confirmação de pedido de ponta a ponta sem nenhum serviço externo.
@@ -19,7 +19,7 @@ interface MailInput {
 
 export async function sendMail({ to, subject, html, text }: MailInput): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Óptica Performance <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "D'Griffe <onboarding@resend.dev>";
 
   if (!key) {
     console.info(
@@ -64,11 +64,11 @@ export function layoutMail(title: string, bodyHtml: string): { html: string; tex
   <body style="margin:0;padding:24px;background:#faf9f7;font-family:Georgia,serif;color:#1c1917;">
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #e7e5e4;border-radius:16px;">
       <tr><td style="padding:28px 32px 4px;">
-        <p style="margin:0;letter-spacing:.2em;font-size:12px;text-transform:uppercase;color:#78716c;">Óptica Performance</p>        <h1 style="margin:8px 0 0;font-size:22px;font-weight:normal;">${escapeHtml(title)}</h1>
+        <p style="margin:0;letter-spacing:.2em;font-size:12px;text-transform:uppercase;color:#78716c;">D'Griffe</p>        <h1 style="margin:8px 0 0;font-size:22px;font-weight:normal;">${escapeHtml(title)}</h1>
       </td></tr>
       <tr><td style="padding:16px 32px 32px;font-size:15px;line-height:1.6;">${bodyHtml}</td></tr>
       <tr><td style="padding:14px 32px;border-top:1px solid #e7e5e4;font-size:12px;color:#78716c;">
-        Se você não pediu isso, ignore este e-mail. Atendimento: contato@opticaperformance.com.br
+        Se você não pediu isso, ignore este e-mail. Atendimento: contato@dgriffe.com.br
       </td></tr>
     </table>
   </body>

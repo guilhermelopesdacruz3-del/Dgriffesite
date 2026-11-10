@@ -9,9 +9,9 @@
  */
 export const storeConfig = {
   /** ⬇️ NOME ÚNICO DA LOJA (mude aqui) */
-  name: process.env.NEXT_PUBLIC_STORE_NAME ?? "Óptica Performance",
-  shortName: process.env.NEXT_PUBLIC_STORE_NAME ?? "Óptica Performance",
-  legalName: "Óptica Performance Ltda.",
+  name: process.env.NEXT_PUBLIC_STORE_NAME ?? "D'Griffe",
+  shortName: process.env.NEXT_PUBLIC_STORE_NAME ?? "D'Griffe",
+  legalName: "D'Griffe Ltda.",
   cnpj: "12.345.678/0001-00", // (placeholder) substitua pelo CNPJ real antes do lançamento
   legalAddress:
     "Avenida Paraguassu, 2950 — Capão da Canoa, Rio Grande do Sul — CEP 95555-000",
@@ -24,7 +24,7 @@ export const storeConfig = {
     phone: "(51) 4002-8922", // (placeholder) telefone/DDD reais antes do lançamento
     whatsapp: "5551940028922", // usado no link wa.me (placeholder)
     whatsappDisplay: "(51) 94002-8922",
-    email: "contato@opticaperformance.com.br", // (placeholder) domínio real antes do lançamento
+    email: "contato@dgriffe.com.br", // (placeholder) domínio real antes do lançamento
     hours: "Seg a Sáb, 9h às 19h",
   },
 
@@ -38,7 +38,7 @@ export const storeConfig = {
   // podem também ser editadas como página no admin.
   stores: [
     {
-      name: "Óptica Performance — Capão da Canoa",
+      name: "D'Griffe — Capão da Canoa",
       address: "Avenida Paraguassu, 2950",
       city: "Capão da Canoa/RS — CEP 95555-000",
       phone: "(51) 4002-8922",

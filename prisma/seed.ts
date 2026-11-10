@@ -20,8 +20,8 @@ import { PRODUCT_IMAGES, CATEGORY_IMAGES, HERO_IMAGE } from "./eyewear-images";
 
 const prisma = new PrismaClient();
 
-const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL ?? "admin@opticaperformance.test").toLowerCase();
-const CUSTOMER_EMAIL = "cliente@opticaperformance.test";
+const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL ?? "admin@dgriffe.test").toLowerCase();
+const CUSTOMER_EMAIL = "cliente@dgriffe.test";
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "Admin@1234";
 
 type SeedVariant = { color: string; hex: string; stock: number; size?: string };
@@ -255,7 +255,7 @@ Nas próximas fases, este espaço ganha um formulário funcional com resposta po
 
 ## Como exercer seus direitos
 - Exportar dados e apagar conta: em Minha conta → Configurações.
-- Dúvidas de privacidade: privacidade@opticaperformance.com.br
+- Dúvidas de privacidade: privacidade@dgriffe.com.br
 
 ## Compartilhamento
 Dados são compartilhados apenas com parceiros essenciais à operação: plataforma de pagamento (Mercado Pago), transportadora e serviço de e-mail.`,
