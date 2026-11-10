@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { audit, requireAdminForAction, toDecimalString } from "@/lib/admin";
 import { productSchema, slugify } from "@/lib/validators/admin";
+import { computeGoldPrice, getGoldPricePerGram } from "@/lib/jewelry";
 
 type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -22,6 +23,17 @@ export async function saveProduct(values: unknown, id?: string): Promise<ActionR
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
   }
   const input = parsed.data;
+
+  // Fase 14 — joia em ouro: o preço é CALCULADO (peso × cotação × 2,7);
+  // o valor digitado no formulário é ignorado de propósito.
+  if (input.type === "JEWEL") {
+    if (!input.weight) {
+      return { ok: false, error: "Joias precisam do peso em gramas — é ele que define o preço." };
+    }
+    if (input.variants.some((v) => v.priceOverride)) {
+      return { ok: false, error: "Joia por grama não aceita preço manual por variação (o cálculo é peso × cotação × 2,7)." };
+    }
+  }
 
   try {
     // Categoria/marca precisam existir (selects do form podem estar defasados)
@@ -55,6 +67,7 @@ export async function saveProduct(values: unknown, id?: string): Promise<ActionR
         lensWidth: input.lensWidth ? Number(input.lensWidth) : null,
         bridge: input.bridge ? Number(input.bridge) : null,
         temple: input.temple ? Number(input.temple) : null,
+        weight: input.weight ? Number(input.weight) : null,
         price: toDecimalString(input.price) as string,
         comparePrice: toDecimalString(input.comparePrice),
         cost: toDecimalString(input.cost),
@@ -67,6 +80,13 @@ export async function saveProduct(values: unknown, id?: string): Promise<ActionR
         brandId: input.brandId,
         categoryId: input.categoryId,
       };
+
+      // Fase 14 — joia: preço sempre calculado no servidor (gramas × cotação × 2,7)
+      if (input.type === "JEWEL") {
+        const gold = await getGoldPricePerGram();
+        data.price = computeGoldPrice(Number(input.weight), gold).toFixed(2);
+        data.comparePrice = null;
+      }
 
       if (id) {
         const existing = await tx.product.findUnique({ where: { id }, select: { id: true, slug: true } });

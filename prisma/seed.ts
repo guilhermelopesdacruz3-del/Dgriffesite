@@ -55,6 +55,7 @@ const BRANDS = [
   { name: "Cristalina", description: "Lentes de contato premium." },
   { name: "Maré", description: "Armações infantis leves e flexíveis." },
   { name: "Andino", description: "Montanha e trilha com lentes polarizadas." },
+  { name: "D'Griffe Joias", description: "Joias em ouro feitas com artesanato próprio." },
 ];
 
 const CATEGORIES = [
@@ -63,6 +64,7 @@ const CATEGORIES = [
   { name: "Óculos infantis", slug: "oculos-infantis", img: CATEGORY_IMAGES["oculos-infantis"] },
   { name: "Óculos esportivos", slug: "oculos-esportivos", img: CATEGORY_IMAGES["oculos-esportivos"] },
   { name: "Lentes de contato", slug: "lentes-de-contato", img: CATEGORY_IMAGES["lentes-de-contato"] },
+  { name: "Joias", slug: "joias", img: CATEGORY_IMAGES["joias"] },
 ];
 
 const COLORS = {
@@ -142,6 +144,14 @@ const PRODUCTS: SeedProduct[] = [
       { color: "Grau -1.00", hex: "#7bb3d0", stock: 20, size: "-1.00" }, { color: "Grau -2.00", hex: "#7bb3d0", stock: 18, size: "-2.00" },
       { color: "Grau -4.00", hex: "#7bb3d0", stock: 15, size: "-4.00" },
     ] },
+
+  // --- Joias em ouro (3) — preço por peso: gramas × cotação do ouro × 2,7 (420/g) ---
+  { name: "Aliança D'Griffe", brand: "D'Griffe Joias", category: "Joias", type: "JEWEL", gender: "UNISEX", material: "Ouro 18k", weight: 10, price: 11340, description: "Aliança em ouro 18k de 10 g. Preço calculado por peso: gramas × cotação do dia × 2,7.",
+    variants: [ { color: "Ouro 18k", hex: "#b8860b", stock: 5 } ] },
+  { name: "Anel Aparador D'Griffe", brand: "D'Griffe Joias", category: "Joias", type: "JEWEL", gender: "FEMININE", material: "Ouro 18k", weight: 6, price: 6804, description: "Aparador em ouro 18k de 6 g, polimento brilhante. Preço por peso: gramas × cotação do dia × 2,7.",
+    variants: [ { color: "Ouro 18k", hex: "#b8860b", stock: 6 } ], isNew: true },
+  { name: "Colar Corrente D'Griffe", brand: "D'Griffe Joias", category: "Joias", type: "JEWEL", gender: "UNISEX", material: "Ouro 18k", weight: 18, price: 20412, description: "Corrente em ouro 18k de 18 g, fecho mosquetão. Preço por peso: gramas × cotação do dia × 2,7.",
+    variants: [ { color: "Ouro 18k", hex: "#b8860b", stock: 3 } ], featured: true },
 ];
 
 const LENS_PACKAGES = [
@@ -298,6 +308,8 @@ const SETTINGS: Record<string, string> = {
   announcement: `Frete grátis acima de R$ 299 • Até 6x sem juros • Provador virtual 3D`,
   freeShippingAbove: "299",
   whatsapp: "5511940028922",
+  // Fase 14 — joias por grama (preço = gramas × cotação × 2,7). Editável no painel.
+  goldPricePerGram: "420.00",
 };
 
 // ----------------------------- Execução -----------------------------

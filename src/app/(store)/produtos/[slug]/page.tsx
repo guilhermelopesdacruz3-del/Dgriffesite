@@ -36,6 +36,7 @@ const TYPE_LABELS: Record<string, string> = {
   SUNGLASSES: "Óculos de sol",
   CONTACT_LENSES: "Lentes de contato",
   ACCESSORIES: "Acessório",
+  JEWEL: "Joia em ouro",
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

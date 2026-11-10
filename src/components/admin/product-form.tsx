@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { saveProduct, deleteProduct } from "@/actions/admin/products";
@@ -33,6 +33,7 @@ export type ProductStatusData = {
   lensWidth: number | null;
   bridge: number | null;
   temple: number | null;
+  weight: number | null;
   price: string;
   comparePrice: string | null;
   cost: string | null;
@@ -64,6 +65,7 @@ const TYPE_LABELS: Record<string, string> = {
   SUNGLASSES: "Óculos de sol",
   CONTACT_LENSES: "Lentes de contato",
   ACCESSORIES: "Acessórios",
+  JEWEL: "Joia em ouro (por grama)",
 };
 
 const GENDER_LABELS: Record<string, string> = {
@@ -134,6 +136,7 @@ export function ProductForm({
     resolver: zodResolver(productSchema),
     defaultValues: product
       ? {
+
           name: product.name,
           slug: product.slug,
           sku: product.sku,
@@ -148,6 +151,7 @@ export function ProductForm({
           lensWidth: product.lensWidth ? String(product.lensWidth) : "",
           bridge: product.bridge ? String(product.bridge) : "",
           temple: product.temple ? String(product.temple) : "",
+          weight: product.weight ? String(product.weight) : "",
           price: product.price,
           comparePrice: product.comparePrice ?? "",
           cost: product.cost ?? "",
@@ -188,6 +192,7 @@ export function ProductForm({
           lensWidth: "",
           bridge: "",
           temple: "",
+          weight: "",
           price: "",
           comparePrice: "",
           cost: "",
@@ -203,6 +208,7 @@ export function ProductForm({
 
   const variants = useFieldArray({ control, name: "variants" });
   const images = useFieldArray({ control, name: "images" });
+  const watchType = useWatch({ control, name: "type" }) as ProductInput["type"];
 
   async function onSubmit(values: ProductInput) {
     setError(null);
@@ -315,6 +321,11 @@ export function ProductForm({
           <div>
             <Label htmlFor="p-price">Preço (R$)</Label>
             <Input id="p-price" className="mt-1.5" inputMode="decimal" placeholder="199.90" {...register("price")} />
+            {watchType === "JEWEL" ? (
+              <FieldHint>
+                Joia em ouro: o preço fica automático — peso (g) × cotação × 2,7 (definida em Ajustes).
+              </FieldHint>
+            ) : null}
             <FieldError>{errors.price?.message}</FieldError>
           </div>
           <div>
@@ -341,6 +352,11 @@ export function ProductForm({
             <Label htmlFor="p-temple">Haste (mm)</Label>
             <Input id="p-temple" className="mt-1.5" inputMode="numeric" {...register("temple")} />
             <FieldError>{errors.temple?.message}</FieldError>
+          </div>
+          <div>
+            <Label htmlFor="p-weight">Peso (g){watchType === "JEWEL" ? " — define o preço" : ""}</Label>
+            <Input id="p-weight" className="mt-1.5" inputMode="numeric" {...register("weight")} />
+            <FieldError>{errors.weight?.message}</FieldError>
           </div>
         </div>
       </section>

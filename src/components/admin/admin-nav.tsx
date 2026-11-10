@@ -9,6 +9,7 @@ import {
   TicketPercent,
   Store,
   Glasses,
+  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const ITEMS: { href: string; label: string; icon: typeof LayoutDashboard; exact?
   { href: "/admin/produtos", label: "Produtos", icon: Package },
   { href: "/admin/lentes", label: "Lentes", icon: Glasses },
   { href: "/admin/cupons", label: "Cupons", icon: TicketPercent },
+  { href: "/admin/ajustes", label: "Ajustes", icon: SlidersHorizontal },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {

@@ -31,6 +31,7 @@ enum ProductType {
   SUNGLASSES
   CONTACT_LENSES
   ACCESSORIES
+  JEWEL // joia em ouro — preço = peso (g) × cotação do ouro × 2,7
 }
 
 enum Gender {
@@ -326,7 +327,7 @@ model Product {
   lensWidth Int? // largura da lente (mm)
   bridge    Int? // ponte (mm)
   temple    Int? // haste (mm)
-  weight    Int? // peso (g)
+  weight    Int? // peso (g) — em joias (JEWEL): gramas de ouro que definem o preço
 
   price        Decimal  @db.Decimal(10, 2)
   comparePrice Decimal? @db.Decimal(10, 2) // preço "de" (promocional)

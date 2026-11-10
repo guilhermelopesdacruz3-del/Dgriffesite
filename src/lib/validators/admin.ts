@@ -4,7 +4,7 @@ import type { FrameShape, Gender, ProductType } from "@prisma/client";
 // ============================ Fase 6: formulários do admin ============================
 
 /** Tipo/UF/valores aceitos — espelham os enums do schema Prisma. */
-export const PRODUCT_TYPES = ["FRAMES", "SUNGLASSES", "CONTACT_LENSES", "ACCESSORIES"] as const satisfies readonly ProductType[];
+export const PRODUCT_TYPES = ["FRAMES", "SUNGLASSES", "CONTACT_LENSES", "ACCESSORIES", "JEWEL"] as const satisfies readonly ProductType[];
 export const GENDERS = ["FEMININE", "MASCULINE", "UNISEX", "KIDS"] as const satisfies readonly Gender[];
 export const FRAME_SHAPES = ["ROUND", "SQUARE", "AVIATOR", "CAT_EYE", "RECTANGULAR", "OVAL", "BUTTERFLY", "WRAP"] as const satisfies readonly (FrameShape | "")[];
 
@@ -53,6 +53,7 @@ export const productSchema = z.object({
   lensWidth: z.string().trim().max(4).optional().default("").refine((v) => v === "" || /^\d{2,3}$/.test(v), "mm inválido"),
   bridge: z.string().trim().max(4).optional().default("").refine((v) => v === "" || /^\d{2,3}$/.test(v), "mm inválido"),
   temple: z.string().trim().max(4).optional().default("").refine((v) => v === "" || /^\d{2,3}$/.test(v), "mm inválido"),
+  weight: z.string().trim().max(4).optional().default("").refine((v) => v === "" || /^\d{1,4}$/.test(v), "gramas: só números"),
   price: priceField("o preço"),
   comparePrice: optionalPrice,
   cost: optionalPrice,
@@ -149,3 +150,9 @@ export const lensPackageSchema = z.object({
     .refine((v) => /^\d{1,3}$/.test(v), "Ordem: só números (0 a 999)"),
 });
 export type LensPackageInput = z.infer<typeof lensPackageSchema>;
+
+/** Fase 14 — cotação do ouro (R$ por grama) para joias vendidas por peso. */
+export const goldPriceSchema = z.object({
+  goldPerGram: priceField("a cotação do ouro"),
+});
+export type GoldPriceInput = z.infer<typeof goldPriceSchema>;
