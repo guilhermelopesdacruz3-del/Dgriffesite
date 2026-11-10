@@ -132,3 +132,20 @@ export const couponSchema = z.object({
   active: z.boolean().optional().default(true),
 });
 export type CouponInput = z.infer<typeof couponSchema>;
+
+// ------------------------------------------------------------------ Pacote de lente
+
+/** Fase 13 — lentes (óculos de grau / de contato) disponíveis no checkout. */
+export const lensPackageSchema = z.object({
+  name: z.string().trim().min(3, "Informe o nome da lente").max(80),
+  description: z.string().trim().min(5, "Descrição: no mínimo 5 caracteres").max(400),
+  price: priceField("o preço da lente"),
+  active: z.boolean().optional().default(true),
+  sortOrder: z
+    .string()
+    .trim()
+    .optional()
+    .default("0")
+    .refine((v) => /^\d{1,3}$/.test(v), "Ordem: só números (0 a 999)"),
+});
+export type LensPackageInput = z.infer<typeof lensPackageSchema>;

@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   TicketPercent,
   Store,
+  Glasses,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const ITEMS: { href: string; label: string; icon: typeof LayoutDashboard; exact?
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
   { href: "/admin/produtos", label: "Produtos", icon: Package },
+  { href: "/admin/lentes", label: "Lentes", icon: Glasses },
   { href: "/admin/cupons", label: "Cupons", icon: TicketPercent },
 ];
 
