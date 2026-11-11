@@ -44,7 +44,7 @@ export function ProductCard({ product, priority, favorite, className }: ProductC
             fill
             priority={priority}
             sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 24vw"
-            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+            className="object-contain transition-opacity duration-300 group-hover:opacity-0"
           />
         ) : null}
         {secondary ? (
@@ -53,7 +53,7 @@ export function ProductCard({ product, priority, favorite, className }: ProductC
             alt={`${product.name} — vista alternativa`}
             fill
             sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 24vw"
-            className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            className="object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           />
         ) : null}
 

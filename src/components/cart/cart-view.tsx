@@ -214,7 +214,7 @@ export function CartView() {
                 <img
                   src={line.image}
                   alt={line.name}
-                  className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                  className="h-20 w-20 shrink-0 rounded-xl bg-stone-100 object-contain"
                 />
               ) : (
                 <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-stone-100 font-serif text-2xl text-stone-400">

@@ -31,14 +31,15 @@ export function ProductGallery({ product, variantImages }: GalleryProps) {
 
   return (
     <div>
-      <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-stone-100">
+      {/* Quadro quadrado: fotos reais (CDN) são ~quadradas/panorâmicas; contain evita corte */}
+      <div className="group relative aspect-square overflow-hidden rounded-2xl bg-stone-100">
         <Image
           src={current.url}
           alt={current.alt ?? product.name}
           fill
           priority
           sizes="(max-width: 1024px) 100vw, 46vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-contain transition-transform duration-500 group-hover:scale-105"
         />
         {product.has3d && (
           <Link
@@ -66,11 +67,11 @@ export function ProductGallery({ product, variantImages }: GalleryProps) {
               aria-label={`Ver imagem ${i + 1} de ${product.name}`}
               aria-pressed={active === i}
               className={cn(
-                "relative h-20 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors",
+                "relative h-20 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-stone-100 transition-colors",
                 active === i ? "border-accent-600" : "border-transparent hover:border-stone-300",
               )}
             >
-              <Image src={img.url} alt="" fill sizes="64px" className="object-cover" />
+              <Image src={img.url} alt="" fill sizes="64px" className="object-contain" />
             </button>
           ))}
         </div>

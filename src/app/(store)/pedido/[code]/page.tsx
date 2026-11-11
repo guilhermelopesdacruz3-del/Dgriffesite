@@ -168,7 +168,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                         alt={snap.name ?? item.productName}
                         width={64}
                         height={64}
-                        className="h-16 w-16 rounded-xl object-cover"
+                        className="h-16 w-16 rounded-xl bg-stone-100 object-contain"
                         unoptimized
                       />
                     ) : (
