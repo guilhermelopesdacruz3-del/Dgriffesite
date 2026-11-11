@@ -28,6 +28,9 @@ for (const envUrl of [process.env.AWS_ENDPOINT_URL_S3]) {
     imageRemotePatterns.push({ protocol: protocol.replace(":", ""), hostname });
   }
 }
+// Catálogo real importado da Loja Integrada (Fase 15): fotos servidas pelo
+// CDN da plataforma antiga até a migração para o armazenamento próprio.
+imageRemotePatterns.push({ protocol: "https", hostname: "cdn.awsli.com.br" });
 
 /**
  * Cabeçalhos de segurança (auditoria A7 — CSP, HSTS e reforços):
