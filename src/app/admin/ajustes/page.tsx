@@ -36,6 +36,11 @@ export default async function AdminSettingsPage() {
           Joias são vendidas por peso:{" "}
           <strong>preço = peso (g) × cotação × {GOLD_MULTIPLIER}</strong>. Salvar já recalcula o preço de todas as joias.
         </p>
+        <p className="mt-2 text-xs text-stone-500">
+          A cotação “de mercado” é o ouro à vista (XAU-BRL, AwesomeAPI) convertido para R$/grama. Atualiza
+          automaticamente 1× ao dia pelo cron da Vercel — ou quando você clicar em “Buscar cotação de mercado”.
+          Se a fonte falhar, o valor atual é mantido. Use “Salvar cotação” para um valor fixo manual.
+        </p>
         {display && <p className="mt-3 text-2xl font-semibold">{formatBRL(Number(display))} <span className="text-sm font-normal text-stone-500">por grama</span></p>}
         <GoldPriceForm current={display || "0"} />
       </section>
