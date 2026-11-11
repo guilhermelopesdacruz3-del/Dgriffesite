@@ -316,7 +316,7 @@ export async function createCheckout(
   }
 
   // ---------- 4. Frete (cota revalidada aqui) ----------
-  const option = findShippingOption(payload.entrega.cep, subtotal, payload.freteId);
+  const option = await findShippingOption(payload.entrega.cep, subtotal, payload.freteId);
   if (!option) {
     return { ok: false, message: "Frete não disponível para o CEP informado." };
   }

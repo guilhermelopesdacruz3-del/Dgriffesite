@@ -5,8 +5,8 @@ import { storeConfig } from "@/lib/config";
 const items = [
   {
     icon: Truck,
-    title: "Frete grátis",
-    desc: `Em compras acima de R$ ${storeConfig.commerce.freeShippingAbove} para todo o Brasil.`,
+    title: "Envio nacional",
+    desc: "Postagem com código de rastreio para todo o Brasil.",
   },
   {
     icon: RotateCcw,

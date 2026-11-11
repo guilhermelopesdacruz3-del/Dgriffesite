@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CartView } from "@/components/cart/cart-view";
 import { Container } from "@/components/ui/container";
-import { storeConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Carrinho de compras",
@@ -13,7 +12,7 @@ export default function CartPage() {
     <Container className="py-10 sm:py-12">
       <h1 className="font-serif text-3xl sm:text-4xl">Carrinho</h1>
       <p className="mt-2 text-stone-500">
-        Frete grátis em compras acima de {storeConfig.commerce.freeShippingAbove.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.
+        Calcule o frete com rastreio para o seu CEP antes de finalizar o pedido.
       </p>
 
       <CartView />

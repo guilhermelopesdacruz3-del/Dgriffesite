@@ -31,7 +31,7 @@ export async function getAnnouncement(): Promise<string> {
 }
 
 const storeAnnouncement =
-  `Frete grátis acima de R$ ${storeConfig.commerce.freeShippingAbove} • Até ${storeConfig.commerce.maxInstallments}x sem juros • Provador virtual 3D`;
+  `Frete para todo o Brasil com rastreio • Até ${storeConfig.commerce.maxInstallments}x sem juros • Provador virtual 3D`;
 
 // ---------------- Banners da home ----------------
 export interface BannerData {

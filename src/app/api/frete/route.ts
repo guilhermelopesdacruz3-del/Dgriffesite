@@ -1,7 +1,8 @@
 /**
  * POST /api/frete — cotação de frete por CEP.
  * Body: { cep: string, subtotal: number }
- * A cotação é simulada/determinística (ver src/lib/shipping.ts).
+ * Cota real via Melhor Envio quando configurado; estimativa local como
+ * reserva (ver src/lib/shipping.ts).
  */
 import { NextResponse } from "next/server";
 import { quoteShipping } from "@/lib/shipping";
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     const cep = String(body.cep ?? "");
     const subtotal = Number(body.subtotal ?? 0);
 
-    const options = quoteShipping(cep, subtotal);
+    const options = await quoteShipping(cep, subtotal);
     if (options.length === 0) {
       return NextResponse.json(
         { ok: false, message: "CEP inválido. Use o formato 00000-000." },

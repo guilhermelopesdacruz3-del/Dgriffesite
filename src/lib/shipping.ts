@@ -1,15 +1,20 @@
 import { storeConfig } from "./config";
+import {
+  melhorEnvioConfigured,
+  quoteMelhorEnvio,
+  SHIP_FROM_CEP,
+} from "./shipping-melhor-envio";
 
 /**
  * Cotação de frete da loja.
  *
- * Fase 4: cotação simulada e determinística a partir do CEP (região,
- * sobreposições regionais e micro-variância dos dígitos finais). O peso da
- * caixa é tratado como uniforme (óculos = pacote leve).
+ * Com token do Melhor Envio configurado, cota preço real (Correios +
+ * transportadoras agregadas) com cache de 15 min por CEP+valor; em qualquer
+ * falha da API cai na estimativa local determinística — o cliente nunca fica
+ * sem opção de frete.
  *
- * Para plugar um provedor real (Melhor Envio/Correios) basta reimplementar
- * `quoteShipping` mantendo a mesma assinatura — a API `/api/frete`, o
- * carrinho e o checkout continuam inalterados.
+ * Regra comercial decidida pelo lojista: frete é sempre cobrado (sem frete
+ * grátis acima de valor). "Retirada na loja" permanece grátis.
  */
 
 /** CEP válido no formato brasileiro (com ou sem hífen). */
@@ -32,8 +37,19 @@ export interface ShippingOption {
   price: number;
 }
 
+/** Retirada na loja física (Capão da Canoa/RS). */
+export function pickupOption(): ShippingOption {
+  return {
+    id: "RETIRADA",
+    carrier: storeConfig.name,
+    service: `Retirada na loja (${storeConfig.stores[0].city.split("—")[0].trim()})`,
+    deadline: null,
+    price: 0,
+  };
+}
+
 // Regiões por primeiro dígito do CEP: faixa, prazo base (dias úteis) e
-// valor base do Pac.
+// valor base do Pac — usadas apenas no fallback (sem provedor real).
 const REGIONS: {
   digits: string[];
   name: string;
@@ -48,8 +64,8 @@ const REGIONS: {
   { digits: ["8", "9"], name: "Sul", basePrice: 5, baseDays: 4 },
 ];
 
-/** Preço base do Pac na capital (SP) — os complementos regionais somam em cima. */
-const PAC_MIN = 16.9;
+/** Preço base do Pac na origem (RS → demais regiões). */
+const PAC_MIN = 19.9;
 const SEDEX_MULTIPLIER = 1.55; // Sedex: ~55% mais caro e ~45% mais rápido
 
 /** Arredonda para 2 casas (moeda). */
@@ -57,33 +73,23 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-/**
- * Cota principal da loja. Determinística a partir do CEP do destino e do
- * subtotal (o frete grátis do config aplica-se ao Pac; Sedex fica com 50%).
- */
-export function quoteShipping(cepInput: string, subtotal: number): ShippingOption[] {
+/** Estimativa local determinística (fallback). */
+function simulatedQuote(cepInput: string): ShippingOption[] {
   const cep = normalizeCep(cepInput);
   if (cep.length !== 8) return [];
 
-  const region =
-    REGIONS.find((r) => r.digits.includes(cep[0])) ?? REGIONS[1];
-
-  // Microssobrepoição pelos últimos dígitos (+0 a +8), evitando que todos os
-  // CEPs da mesma faixa tenham valor idêntico.
+  const region = REGIONS.find((r) => r.digits.includes(cep[0])) ?? REGIONS[1];
+  // RS (origem) para Sul é curto; faixas 8/9 partem do Sul.
+  const sameState = cep.startsWith("95");
+  const base = sameState ? PAC_MIN - 8 : PAC_MIN + region.basePrice;
   const micro = Number(cep.slice(6)) % 9;
 
-  const pacBase = round2(PAC_MIN + region.basePrice + micro);
-  const pacDays = Math.max(2, Math.round(region.baseDays + micro / 4));
+  const pacBase = round2(Math.max(12.9, base + micro));
+  const pacDays = sameState ? 2 : Math.max(2, Math.round(region.baseDays + micro / 4));
   const sedexDays = Math.max(1, Math.round(pacDays * 0.55));
 
-  const options: ShippingOption[] = [
-    {
-      id: "PAC",
-      carrier: "Correios",
-      service: "Pac",
-      deadline: pacDays,
-      price: pacBase,
-    },
+  return [
+    { id: "PAC", carrier: "Correios", service: "Pac", deadline: pacDays, price: pacBase },
     {
       id: "SEDEX",
       carrier: "Correios",
@@ -91,34 +97,61 @@ export function quoteShipping(cepInput: string, subtotal: number): ShippingOptio
       deadline: sedexDays,
       price: round2(pacBase * SEDEX_MULTIPLIER),
     },
-    {
-      id: "RETIRADA",
-      carrier: storeConfig.name,
-      service: "Retirada na loja (Paulista)",
-      deadline: null,
-      price: 0,
-    },
+    pickupOption(),
   ];
-
-  // Frete grátis do config: Pac grátis acima do valor; Sedex pela metade.
-  const freeAbove = storeConfig.commerce.freeShippingAbove;
-  if (subtotal >= freeAbove) {
-    return options.map((o) =>
-      o.id === "PAC"
-        ? { ...o, price: 0 }
-        : o.id === "SEDEX"
-          ? { ...o, price: round2(o.price * 0.5) }
-          : o,
-    );
-  }
-  return options;
 }
 
-/** Busca uma opção de cotação pelo id (validação no servidor do checkout). */
-export function findShippingOption(
+/** Ordena por preço (mais barato primeiro) e junta a retirada. */
+function withPickup(options: ShippingOption[]): ShippingOption[] {
+  return [...options].sort((a, b) => a.price - b.price).concat([pickupOption()]);
+}
+
+// Cache em memória: evita bater no Melhor Envio a cada requote do carrinho.
+const CACHE_TTL_MS = 15 * 60 * 1000;
+const cache = new Map<string, { at: number; options: ShippingOption[] }>();
+
+/**
+ * Cota principal da loja (assíncrona): Melhor Envio quando configurado,
+ * estimativa local como reserva. Sempre inclui a retirada na loja.
+ */
+export async function quoteShipping(
+  cepInput: string,
+  subtotal: number,
+): Promise<ShippingOption[]> {
+  const cep = normalizeCep(cepInput);
+  if (cep.length !== 8) return [];
+
+  if (melhorEnvioConfigured()) {
+    const key = `${cep}:${round2(subtotal)}`;
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.options;
+
+    try {
+      const options = await quoteMelhorEnvio(cep, subtotal);
+      if (options.length > 0) {
+        const result = withPickup(options);
+        cache.set(key, { at: Date.now(), options: result });
+        return result;
+      }
+    } catch (err) {
+      console.warn("[frete] Melhor Envio falhou, usando estimativa local:", err instanceof Error ? err.message : err);
+    }
+  }
+  return simulatedQuote(cep);
+}
+
+/** Busca uma opção de cotação pelo id (revalidação do checkout no servidor). */
+export async function findShippingOption(
   cep: string,
   subtotal: number,
   optionId: string,
-): ShippingOption | null {
-  return quoteShipping(cep, subtotal).find((o) => o.id === optionId) ?? null;
+): Promise<ShippingOption | null> {
+  const options = await quoteShipping(cep, subtotal);
+  return options.find((o) => o.id === optionId) ?? null;
+}
+
+/** CEP de origem das postagens (para exibição/admin). */
+export function shipFrom(): string {
+  const c = SHIP_FROM_CEP;
+  return `${c.slice(0, 5)}-${c.slice(5)}`;
 }

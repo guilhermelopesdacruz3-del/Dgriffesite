@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: `${storeConfig.name} — Armações, óculos de sol e lentes`,
     template: `%s | ${storeConfig.name}`,
   },
-  description: `${storeConfig.tagline} Frete grátis acima de R$ ${storeConfig.commerce.freeShippingAbove}, provador virtual 3D e troca em ${storeConfig.commerce.exchangeDays} dias.`,
+  description: `${storeConfig.tagline} Frete para todo o Brasil com rastreio, provador virtual 3D e troca em ${storeConfig.commerce.exchangeDays} dias.`,
   openGraph: {
     siteName: storeConfig.name,
     locale: "pt_BR",

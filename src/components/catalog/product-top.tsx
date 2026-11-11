@@ -51,7 +51,7 @@ export function ProductTop({ product }: { product: ProductDetailData }) {
         <ul className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-stone-200 p-4 text-sm text-stone-600 sm:grid-cols-3">
           <li className="flex items-center gap-2">
             <Truck size={18} className="shrink-0 text-accent-600" aria-hidden="true" />
-            Frete grátis acima de R$ {storeConfig.commerce.freeShippingAbove}
+            Envio para todo o Brasil com rastreio
           </li>
           <li className="flex items-center gap-2">
             <RotateCcw size={18} className="shrink-0 text-accent-600" aria-hidden="true" />
