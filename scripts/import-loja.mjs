@@ -55,7 +55,8 @@ const num = (v) => {
 // minúsculas + sem acento (para casar "Aliança"→"alianca", "Óculos"→"oculos")
 const flat = (s) => norm(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const JOIA_RE = /alianca|anel|colar|corrente|pingente|brinco|gargantilha|conjunto|bracelete|pulseira|aparelho/;
+const JOIA_RE =
+  /alianca|anel|colar|corrente|pingente|brinco|gargantilha|conjunto|bracelete|pulseira|aparelho|tornozeleira|berloque|separador|dije/;
 
 /** Tipo + gênero + categoria do site a partir da linha da planilha. */
 function classify(row) {
@@ -64,12 +65,19 @@ function classify(row) {
   const c3 = flat(row["categoria-nome-nivel-3"]);
   const infantil = /infantil|infanto|kids/.test(n + c3);
 
+  // c1 vem sem acento (flat): comparar com literais sem acento.
   if (c1 === "prata") return { type: "JEWEL", gold: false, cat: "prata" };
-  if (c1 === "jóias") return { type: "JEWEL", gold: true, cat: "joias" };
+  if (c1 === "joias") return { type: "JEWEL", gold: true, cat: "joias" };
   if (c1 === "lentes de contato" || (/lente/.test(n) && /contato/.test(n))) {
     return { type: "CONTACT_LENSES", cat: "lentes-de-contato" };
   }
-  if (c1 === "óculos" || /oculos/.test(n)) {
+  // Sem categoria: nome de joia tem prioridade sobre "óculos" no nome
+  // (ex.: "Pingente de Óculos" é joia, não armação).
+  if (!c1 && JOIA_RE.test(n)) {
+    const prataNome = /prata/.test(n);
+    return { type: "JEWEL", gold: !prataNome, cat: prataNome ? "prata" : "joias" };
+  }
+  if (c1 === "oculos" || /oculos/.test(n)) {
     const sol = /de sol|solar|sunglass/.test(n) || /sol/.test(c3);
     return {
       type: sol ? "SUNGLASSES" : "FRAMES",
