@@ -68,7 +68,7 @@ type Landmarker = Awaited<ReturnType<typeof getDnpLandmarker>>;
 function describeError(err: unknown): string {
   if (err instanceof DOMException) {
     if (err.name === "NotAllowedError")
-      return "Permissão para usar a câmera foi negada. Libere o acesso nas configurações do navegador.";
+      return "Câmera bloqueada. Clique no cadeado 🔒 na barra de endereço do site, mude “Câmera” para “Permitir”, recarregue a página e tente de novo. (Se o navegador perguntar, toque em “Permitir”.)";
     if (err.name === "NotFoundError") return "Nenhuma câmera foi encontrada neste dispositivo.";
     if (err.name === "NotReadableError") return "A câmera está em uso por outro aplicativo.";
   }
