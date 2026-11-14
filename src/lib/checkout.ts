@@ -43,6 +43,8 @@ export const checkoutSchema = z.object({
         quantity: z.number().int().min(1).max(10),
         /** Pacote de lentes escolhido na PDP (Fase 7b) — null = só armação. */
         lensPackageId: z.string().min(1).nullable().optional(),
+        /** DP (distância pupilar) em mm — medida no /medir-dnp ou informada. */
+        pupillaryDistance: z.number().min(40).max(90).nullable().optional(),
       }),
     )
     .min(1),
@@ -135,6 +137,8 @@ interface OfficialLine {
   /** Fase 7b — pacote de lentes para a linha. */
   lensPackageId: string | null;
   lensPackageSnapshot: { name: string; price: number } | null;
+  /** DP (distância pupilar) em mm — snapshot para o óptico. */
+  pupillaryDistance: number | null;
 }
 
 /**
@@ -235,6 +239,7 @@ export async function createCheckout(
         },
         lensPackageId: lens ? item.lensPackageId ?? null : null,
         lensPackageSnapshot: lens,
+        pupillaryDistance: item.pupillaryDistance ?? null,
       });
     } else {
       // Sem variação: soma o estoque de todas as variações do produto
@@ -265,6 +270,7 @@ export async function createCheckout(
         },
         lensPackageId: lens ? item.lensPackageId ?? null : null,
         lensPackageSnapshot: lens,
+        pupillaryDistance: item.pupillaryDistance ?? null,
       });
     }
   }
@@ -370,6 +376,7 @@ export async function createCheckout(
             withLenses: l.lensPackageSnapshot !== null,
             lensPackageId: l.lensPackageId,
             lensPackageSnapshot: (l.lensPackageSnapshot as Prisma.InputJsonValue) ?? undefined,
+            pupillaryDistance: l.pupillaryDistance ?? null,
             prescriptionId: l.lensPackageSnapshot ? (prescription?.id ?? null) : null,
           })),
         },

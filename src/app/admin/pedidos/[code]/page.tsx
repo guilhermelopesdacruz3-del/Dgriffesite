@@ -32,6 +32,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           unitPrice: true,
           withLenses: true,
           lensPackageSnapshot: true,
+          pupillaryDistance: true,
           lensPackage: { select: { name: true, price: true } },
           prescription: { select: { id: true, fileName: true, status: true, notes: true, createdAt: true } },
           product: { select: { slug: true, images: { take: 1, orderBy: { position: "asc" }, select: { url: true } } } },
@@ -102,6 +103,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                       {lensPrice > 0 ? ` + lentes ${formatBRL(lensPrice)}` : ""}
                       {detail ? ` · ${detail}` : ""}
                       {lens?.name ? ` · ${lens.name}` : ""}
+                      {item.pupillaryDistance
+                        ? ` · DP ${Number(item.pupillaryDistance).toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm`
+                        : ""}
                     </p>
                   </div>
                   <span className="text-sm font-medium">

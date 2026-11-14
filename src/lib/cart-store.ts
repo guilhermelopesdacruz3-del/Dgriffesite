@@ -26,6 +26,8 @@ export interface CartLine {
   lensPackageName?: string | null;
   /** Preço do pacote de lente por unidade (soma no subtotal do checkout). */
   lensPackagePrice?: number | null;
+  /** DP (distância pupilar) em mm — do medidor /medir-dnp ou informada à mão. */
+  pupillaryDistance?: number | null;
 }
 
 /** Preço total da linha (produto + lente quando houver). */
@@ -62,6 +64,10 @@ export function addToCart(line: Omit<CartLine, "quantity">, quantity = 1) {
   );
   if (existing) {
     existing.quantity += quantity;
+    // Atualiza a DP da linha quando o cliente mede/informa de novo.
+    if (line.pupillaryDistance !== undefined) {
+      existing.pupillaryDistance = line.pupillaryDistance;
+    }
     writeCart(lines);
   } else {
     writeCart([...lines, { ...line, quantity } as CartLine]);

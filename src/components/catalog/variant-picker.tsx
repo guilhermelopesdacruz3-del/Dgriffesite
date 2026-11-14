@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Check, ShoppingBag } from "lucide-react";
+import { Check, Ruler, ShoppingBag } from "lucide-react";
 import type { ProductDetailData } from "@/lib/types";
 import { addToCart } from "@/lib/cart-store";
+import { readStoredDnp } from "@/components/provador/dnp-meter";
 import { Price } from "@/components/ui/price";
 import { storeConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,12 @@ export function VariantPicker({
   /** Fase 7b — a armação de grau pode sair com lentes sob receita. */
   const [comLentes, setComLentes] = useState(false);
   const [lensPackageId, setLensPackageId] = useState<string | null>(null);
+  /** DP (distância pupilar) do cliente — medida no /medir-dnp ou informada à mão. */
+  const [dp, setDp] = useState<number | null>(null);
+
+  useEffect(() => {
+    setDp(readStoredDnp()?.dp ?? null);
+  }, []);
 
   const variant = useMemo(
     () => product.variants.find((v) => v.id === selectedVariantId) ?? product.variants[0],
@@ -87,6 +94,7 @@ export function VariantPicker({
       lensPackageId: comLentes && pacoteLente ? pacoteLente.id : null,
       lensPackageName: comLentes && pacoteLente ? pacoteLente.name : null,
       lensPackagePrice: comLentes && pacoteLente ? pacoteLente.price : null,
+      pupillaryDistance: comLentes && pacoteLente ? dp : null,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2500);
@@ -205,6 +213,47 @@ export function VariantPicker({
                 Sua receita tem adição (perto)? Anexe a foto/PDF no checkout — o
                 óptico confere os graus antes de montar.
               </p>
+              <div className="rounded-xl border border-stone-200 bg-white p-3">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  <Ruler size={14} aria-hidden="true" /> Distância pupilar (DP)
+                </p>
+                {dp !== null ? (
+                  <p className="mt-1.5 text-sm">
+                    <Check size={15} className="mr-1 inline text-emerald-600" aria-hidden="true" />
+                    Medida salva: <strong>{dp.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm</strong>
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-sm text-stone-500">
+                    Opcional — mas com ela o óptico monta a lente no ponto exato.
+                  </p>
+                )}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Link
+                    href="/medir-dnp"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-accent-50 px-3 py-1.5 text-xs font-semibold text-accent-700 ring-1 ring-accent-200 transition hover:bg-accent-100"
+                  >
+                    Medir com a câmera (grátis)
+                  </Link>
+                  <label className="inline-flex items-center gap-1.5 text-xs text-stone-500">
+                    ou digite:
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={40}
+                      max={90}
+                      step={0.5}
+                      value={dp ?? ""}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setDp(Number.isFinite(v) && v >= 40 && v <= 90 ? v : null);
+                      }}
+                      placeholder="63.0"
+                      className="w-20 rounded-lg border border-stone-200 px-2 py-1 text-sm"
+                    />
+                    mm
+                  </label>
+                </div>
+              </div>
             </div>
           )}
         </fieldset>

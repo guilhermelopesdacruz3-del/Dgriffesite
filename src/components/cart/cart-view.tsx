@@ -238,6 +238,9 @@ export function CartView() {
                       ? ` (+ ${formatBRL(line.lensPackagePrice)}/un).`
                       : "."}{" "}
                     A receita é anexada no checkout.
+                    {line.pupillaryDistance
+                      ? ` DP: ${line.pupillaryDistance.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm.`
+                      : ""}
                   </p>
                 )}
 

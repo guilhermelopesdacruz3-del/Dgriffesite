@@ -504,6 +504,8 @@ model CartItem {
   withLenses     Boolean @default(false) // "com lentes" (armação de grau)
   lensPackageId  String?
   prescriptionId String?
+  // DP (distância pupilar) medida — medidor DNP do site ou informada pelo óptico
+  pupillaryDistance Decimal? @db.Decimal(10, 2)
 
   cart         Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -602,6 +604,8 @@ model OrderItem {
   lensPackageSnapshot Json? // { name, price }
   prescriptionId      String?
   prescription        Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+  // DP (distância pupilar) no momento do pedido — snapshot para o óptico
+  pupillaryDistance   Decimal?      @db.Decimal(10, 2)
 
   @@index([orderId])
 }

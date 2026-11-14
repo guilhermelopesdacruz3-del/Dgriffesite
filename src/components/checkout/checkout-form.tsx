@@ -261,6 +261,7 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
             variantId: l.variantId,
             quantity: l.quantity,
             lensPackageId: l.lensPackageId ?? null,
+            pupillaryDistance: l.pupillaryDistance ?? null,
           })),
           prescriptionId: temLentes ? receitaId : null,
           cupom: cupom && cupom.length > 0 ? cupom : null,
