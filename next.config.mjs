@@ -46,7 +46,9 @@ const isProd = process.env.NODE_ENV === "production";
 const csp = [
   `default-src 'self'`,
   // Next injeta scripts inline (hidratação); dev também precisa de eval (HMR).
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // 'wasm-unsafe-eval' permite APENAS compilar WebAssembly — exigido pelo
+  // MediaPipe (provador virtual e medidor de DP). Não abre eval de JavaScript.
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
   `style-src 'self' 'unsafe-inline'`,
   `img-src 'self' data: blob: https:`,
   `font-src 'self' data:`,
