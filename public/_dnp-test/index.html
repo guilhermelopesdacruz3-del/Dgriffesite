@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8" /><title>Teste DNP</title></head>
+<body>
+<script type="module">
+  const out = [];
+  try {
+    const mp = await import("./vision_bundle.mjs");
+    out.push("pacote ok");
+    const fileset = await mp.FilesetResolver.forVisionTasks("/mediapipe/wasm");
+    out.push("wasm ok");
+    for (const delegate of ["GPU", "CPU"]) {
+      try {
+        const l = await mp.FaceLandmarker.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: "/mediapipe/face_landmarker.task", delegate },
+          runningMode: "VIDEO",
+          numFaces: 1,
+          outputFaceBlendshapes: true,
+        });
+        out.push(`landmarker OK via ${delegate}`);
+        document.title = "TESTE-OK";
+        break;
+      } catch (e) {
+        out.push(`${delegate} falhou: ${String(e?.message ?? e).slice(0, 120)}`);
+      }
+    }
+  } catch (e) {
+    out.push(`erro: ${String(e?.message ?? e).slice(0, 200)}`);
+    document.title = "TESTE-FALHA";
+  }
+  document.body.innerText = out.join(" | ");
+</script>
+</body>
+</html>

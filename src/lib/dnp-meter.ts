@@ -17,6 +17,7 @@ export function getDnpLandmarker(): Promise<FaceLandmarker> {
       const mp = await import("@mediapipe/tasks-vision");
       const fileset = await mp.FilesetResolver.forVisionTasks(WASM_URL);
       // GPU é bem mais rápida; em GPUs incompatíveis cai para WASM/CPU.
+      const falhas: string[] = [];
       for (const delegate of ["GPU", "CPU"] as const) {
         try {
           return await mp.FaceLandmarker.createFromOptions(fileset, {
@@ -26,11 +27,15 @@ export function getDnpLandmarker(): Promise<FaceLandmarker> {
             // Blendshapes detectam piscadas — amostras inválidas são descartadas.
             outputFaceBlendshapes: true,
           });
-        } catch {
-          /* tenta o próximo delegate */
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          falhas.push(`${delegate}: ${msg.slice(0, 160)}`);
+          console.error(`[dnp] FaceLandmarker falhou via ${delegate}:`, err);
         }
       }
-      throw new Error("FaceLandmarker não inicializou");
+      throw new Error(
+        `Detector facial não iniciou — detalhes: ${falhas.join(" · ")}`,
+      );
     })().catch((err) => {
       instance = null;
       throw err;
