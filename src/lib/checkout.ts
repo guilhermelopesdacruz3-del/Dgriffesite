@@ -45,6 +45,9 @@ export const checkoutSchema = z.object({
         lensPackageId: z.string().min(1).nullable().optional(),
         /** DP (distância pupilar) em mm — medida no /medir-dnp ou informada. */
         pupillaryDistance: z.number().min(40).max(90).nullable().optional(),
+        /** Medidas monoculares (DNP OD/OE) do medidor. */
+        pupillaryOd: z.number().min(15).max(50).nullable().optional(),
+        pupillaryOe: z.number().min(15).max(50).nullable().optional(),
       }),
     )
     .min(1),
@@ -139,6 +142,9 @@ interface OfficialLine {
   lensPackageSnapshot: { name: string; price: number } | null;
   /** DP (distância pupilar) em mm — snapshot para o óptico. */
   pupillaryDistance: number | null;
+  /** Medidas monoculares (DNP OD/OE) — snapshot do medidor. */
+  pupillaryOd: number | null;
+  pupillaryOe: number | null;
 }
 
 /**
@@ -240,6 +246,8 @@ export async function createCheckout(
         lensPackageId: lens ? item.lensPackageId ?? null : null,
         lensPackageSnapshot: lens,
         pupillaryDistance: item.pupillaryDistance ?? null,
+        pupillaryOd: item.pupillaryOd ?? null,
+        pupillaryOe: item.pupillaryOe ?? null,
       });
     } else {
       // Sem variação: soma o estoque de todas as variações do produto
@@ -271,6 +279,8 @@ export async function createCheckout(
         lensPackageId: lens ? item.lensPackageId ?? null : null,
         lensPackageSnapshot: lens,
         pupillaryDistance: item.pupillaryDistance ?? null,
+        pupillaryOd: item.pupillaryOd ?? null,
+        pupillaryOe: item.pupillaryOe ?? null,
       });
     }
   }
@@ -377,6 +387,8 @@ export async function createCheckout(
             lensPackageId: l.lensPackageId,
             lensPackageSnapshot: (l.lensPackageSnapshot as Prisma.InputJsonValue) ?? undefined,
             pupillaryDistance: l.pupillaryDistance ?? null,
+            pupillaryOd: l.pupillaryOd ?? null,
+            pupillaryOe: l.pupillaryOe ?? null,
             prescriptionId: l.lensPackageSnapshot ? (prescription?.id ?? null) : null,
           })),
         },

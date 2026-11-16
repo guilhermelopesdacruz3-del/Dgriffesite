@@ -506,6 +506,9 @@ model CartItem {
   prescriptionId String?
   // DP (distância pupilar) medida — medidor DNP do site ou informada pelo óptico
   pupillaryDistance Decimal? @db.Decimal(10, 2)
+  // Medidas monoculares (DNP de cada olho) — vem do medidor /medir-dnp
+  pupillaryOd      Decimal? @db.Decimal(10, 2)
+  pupillaryOe      Decimal? @db.Decimal(10, 2)
 
   cart         Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -606,6 +609,9 @@ model OrderItem {
   prescription        Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
   // DP (distância pupilar) no momento do pedido — snapshot para o óptico
   pupillaryDistance   Decimal?      @db.Decimal(10, 2)
+  // Medidas monoculares (DNP OD/OE) — snapshot do medidor /medir-dnp
+  pupillaryOd         Decimal?      @db.Decimal(10, 2)
+  pupillaryOe         Decimal?      @db.Decimal(10, 2)
 
   @@index([orderId])
 }

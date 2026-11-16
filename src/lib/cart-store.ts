@@ -28,6 +28,9 @@ export interface CartLine {
   lensPackagePrice?: number | null;
   /** DP (distância pupilar) em mm — do medidor /medir-dnp ou informada à mão. */
   pupillaryDistance?: number | null;
+  /** Medidas monoculares (DNP de cada olho) — do medidor /medir-dnp. */
+  pupillaryOd?: number | null;
+  pupillaryOe?: number | null;
 }
 
 /** Preço total da linha (produto + lente quando houver). */
@@ -67,6 +70,8 @@ export function addToCart(line: Omit<CartLine, "quantity">, quantity = 1) {
     // Atualiza a DP da linha quando o cliente mede/informa de novo.
     if (line.pupillaryDistance !== undefined) {
       existing.pupillaryDistance = line.pupillaryDistance;
+      existing.pupillaryOd = line.pupillaryOd ?? null;
+      existing.pupillaryOe = line.pupillaryOe ?? null;
     }
     writeCart(lines);
   } else {

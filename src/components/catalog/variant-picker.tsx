@@ -35,9 +35,17 @@ export function VariantPicker({
   const [lensPackageId, setLensPackageId] = useState<string | null>(null);
   /** DP (distância pupilar) do cliente — medida no /medir-dnp ou informada à mão. */
   const [dp, setDp] = useState<number | null>(null);
+  /** Medidas monoculares (quando vierem do medidor; digitação à mão não tem). */
+  const [dpOd, setDpOd] = useState<number | null>(null);
+  const [dpOe, setDpOe] = useState<number | null>(null);
 
   useEffect(() => {
-    setDp(readStoredDnp()?.dp ?? null);
+    const s = readStoredDnp();
+    if (s) {
+      setDp(s.dp);
+      setDpOd(s.od);
+      setDpOe(s.oe);
+    }
   }, []);
 
   const variant = useMemo(
@@ -95,6 +103,8 @@ export function VariantPicker({
       lensPackageName: comLentes && pacoteLente ? pacoteLente.name : null,
       lensPackagePrice: comLentes && pacoteLente ? pacoteLente.price : null,
       pupillaryDistance: comLentes && pacoteLente ? dp : null,
+      pupillaryOd: comLentes && pacoteLente ? dpOd : null,
+      pupillaryOe: comLentes && pacoteLente ? dpOe : null,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2500);
@@ -221,6 +231,12 @@ export function VariantPicker({
                   <p className="mt-1.5 text-sm">
                     <Check size={15} className="mr-1 inline text-emerald-600" aria-hidden="true" />
                     Medida salva: <strong>{dp.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm</strong>
+                    {dpOd !== null && dpOe !== null ? (
+                      <span className="block text-xs text-stone-500">
+                        Olho direito (OD): {dpOd.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm ·
+                        Olho esquerdo (OE): {dpOe.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm
+                      </span>
+                    ) : null}
                   </p>
                 ) : (
                   <p className="mt-1.5 text-sm text-stone-500">
@@ -246,6 +262,9 @@ export function VariantPicker({
                       onChange={(e) => {
                         const v = Number(e.target.value);
                         setDp(Number.isFinite(v) && v >= 40 && v <= 90 ? v : null);
+                        // Digitação à mão não tem as medidas por olho.
+                        setDpOd(null);
+                        setDpOe(null);
                       }}
                       placeholder="63.0"
                       className="w-20 rounded-lg border border-stone-200 px-2 py-1 text-sm"

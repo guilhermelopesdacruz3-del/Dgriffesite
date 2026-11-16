@@ -33,6 +33,8 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           withLenses: true,
           lensPackageSnapshot: true,
           pupillaryDistance: true,
+          pupillaryOd: true,
+          pupillaryOe: true,
           lensPackage: { select: { name: true, price: true } },
           prescription: { select: { id: true, fileName: true, status: true, notes: true, createdAt: true } },
           product: { select: { slug: true, images: { take: 1, orderBy: { position: "asc" }, select: { url: true } } } },
@@ -105,6 +107,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                       {lens?.name ? ` · ${lens.name}` : ""}
                       {item.pupillaryDistance
                         ? ` · DP ${Number(item.pupillaryDistance).toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm`
+                        : ""}
+                      {item.pupillaryOd != null && item.pupillaryOe != null
+                        ? ` · OD ${Number(item.pupillaryOd).toLocaleString("pt-BR", { minimumFractionDigits: 1 })} / OE ${Number(item.pupillaryOe).toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm`
                         : ""}
                     </p>
                   </div>

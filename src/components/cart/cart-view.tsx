@@ -241,6 +241,12 @@ export function CartView() {
                     {line.pupillaryDistance
                       ? ` DP: ${line.pupillaryDistance.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm.`
                       : ""}
+                    {line.pupillaryOd != null && line.pupillaryOe != null ? (
+                      <span className="block">
+                        OD {line.pupillaryOd.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm ·
+                        OE {line.pupillaryOe.toLocaleString("pt-BR", { minimumFractionDigits: 1 })} mm
+                      </span>
+                    ) : null}
                   </p>
                 )}
 
