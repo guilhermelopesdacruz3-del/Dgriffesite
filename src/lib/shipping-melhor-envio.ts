@@ -1,7 +1,8 @@
 /**
  * Cliente da API do Melhor Envio (cotação de frete real).
  *
- * Credenciais por variáveis de ambiente:
+ * Credenciais: painel do site (/admin/ajustes, salvas no banco) com reserva
+ * por variáveis de ambiente:
  *  - MELHOR_ENVIO_TOKEN   — token de usuário gerado em melhor Envio → Integrações
  *  - MELHOR_ENVIO_BASE    — (opcional) https://sandbox.melhorenvio.com.br p/ testes
  *  - SHIP_FROM_CEP        — CEP de origem (Capão da Canoa/RS)
@@ -9,11 +10,10 @@
  * Sem token configurado a cotação real é desativada e a loja usa a estimativa
  * local (fallback em src/lib/shipping.ts) — o checkout nunca fica sem frete.
  */
+import { getMelhorEnvioBase, getMelhorEnvioToken, getShipFromCep } from "@/lib/credenciais";
 
-export const SHIP_FROM_CEP = (process.env.SHIP_FROM_CEP ?? "95555000").replace(/\D/g, "");
-
-export function melhorEnvioConfigured(): boolean {
-  return Boolean(process.env.MELHOR_ENVIO_TOKEN);
+export async function melhorEnvioConfigured(): Promise<boolean> {
+  return Boolean(await getMelhorEnvioToken());
 }
 
 interface MeQuote {
@@ -42,12 +42,14 @@ export async function quoteMelhorEnvio(
   cepDestino: string,
   insurance: number,
 ): Promise<MeOption[]> {
-  const token = process.env.MELHOR_ENVIO_TOKEN;
-  if (!token) throw new Error("Melhor Envio não configurado (MELHOR_ENVIO_TOKEN).");
-
-  const base = process.env.MELHOR_ENVIO_BASE ?? "https://www.melhorenvio.com.br";
+  const [token, base, shipFromCep] = await Promise.all([
+    getMelhorEnvioToken(),
+    getMelhorEnvioBase(),
+    getShipFromCep(),
+  ]);
+  if (!token) throw new Error("Melhor Envio não configurado (token do painel ou MELHOR_ENVIO_TOKEN).");
   const body = {
-    from: { postal_code: SHIP_FROM_CEP },
+    from: { postal_code: shipFromCep },
     to: { postal_code: cepDestino },
     products: [
       {

@@ -121,7 +121,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   const ui = STATUS_UI[order.status];
   const payment = order.payments[order.payments.length - 1];
-  const demoEnabled = !isMercadoPagoEnabled();
+  const demoEnabled = !(await isMercadoPagoEnabled());
   /** A receita exibida: pega a primeira lente com receita anexada. */
   const receita = order.items.find((i) => i.prescription)?.prescription ?? null;
 

@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { GOLD_MULTIPLIER, getGoldPricePerGram, GOLD_PRICE_SETTING_KEY } from "@/lib/jewelry";
 import { GoldPriceForm } from "@/components/admin/gold-price-form";
+import { CredenciaisForm, type CredState } from "@/components/admin/credenciais-form";
+import { statusCredenciais } from "@/actions/admin/credenciais";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,17 @@ export default async function AdminSettingsPage() {
   });
   const current = row?.value ?? "0";
   const display = Number(current) > 0 ? current : ""; // sem cotação salva ainda
+
+  // Credenciais gateway/frete — a página é force-dynamic e admin-only
+  const cred = await statusCredenciais();
+  const credState: CredState | null = cred && {
+    mp: { source: cred.mp.source, masked: cred.mp.masked },
+    mpHook: { source: cred.mpHook.source, masked: cred.mpHook.masked },
+    me: { source: cred.me.source, masked: cred.me.masked },
+    meCep: cred.meCep,
+    meSandbox: cred.meSandbox,
+    mpAtivo: cred.mpAtivo,
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,6 +57,20 @@ export default async function AdminSettingsPage() {
         {display && <p className="mt-3 text-2xl font-semibold">{formatBRL(Number(display))} <span className="text-sm font-normal text-stone-500">por grama</span></p>}
         <GoldPriceForm current={display || "0"} />
       </section>
+
+      {/* ---------- Gateway de pagamento + Envio (editáveis no site) ---------- */}
+      {credState && (
+        <section className="max-w-2xl rounded-2xl border border-stone-200 bg-white p-6">
+          <h2 className="font-serif text-lg">Pagamentos e frete</h2>
+          <p className="mt-1 text-sm text-stone-500">
+            Cole os tokens aqui e clique em salvar — sem precisar mexer na Vercel. Segredos ficam
+            escondidos (mostramos só o começo e o fim).
+          </p>
+          <div className="mt-4">
+            <CredenciaisForm state={credState} />
+          </div>
+        </section>
+      )}
     </div>
   );
 }

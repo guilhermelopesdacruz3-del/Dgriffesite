@@ -1,9 +1,5 @@
 import { storeConfig } from "./config";
-import {
-  melhorEnvioConfigured,
-  quoteMelhorEnvio,
-  SHIP_FROM_CEP,
-} from "./shipping-melhor-envio";
+import { quoteMelhorEnvio } from "./shipping-melhor-envio";
 
 /**
  * Cotação de frete da loja.
@@ -121,7 +117,9 @@ export async function quoteShipping(
   const cep = normalizeCep(cepInput);
   if (cep.length !== 8) return [];
 
-  if (melhorEnvioConfigured()) {
+  // Tenta o Melhor Envio sempre — o token pode vir do painel do site
+  // (Setting) ou do .env. quoteMelhorEnvio lança quando não há token.
+  {
     const key = `${cep}:${round2(subtotal)}`;
     const hit = cache.get(key);
     if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.options;
@@ -150,8 +148,4 @@ export async function findShippingOption(
   return options.find((o) => o.id === optionId) ?? null;
 }
 
-/** CEP de origem das postagens (para exibição/admin). */
-export function shipFrom(): string {
-  const c = SHIP_FROM_CEP;
-  return `${c.slice(0, 5)}-${c.slice(5)}`;
-}
+/** CEP de origem das postagens: use `getShipFromCep()` (credenciais.ts). */

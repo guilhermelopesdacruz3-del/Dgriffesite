@@ -24,6 +24,7 @@ import { randomInt, randomUUID } from "node:crypto";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import type { PaymentMethod, Prisma } from "@prisma/client";
 import { db } from "./db";
+import { getMercadoPagoAccessToken } from "./credenciais";
 import { evaluateCoupon } from "./coupons";
 import { findShippingOption } from "./shipping";
 import { storeConfig } from "./config";
@@ -89,9 +90,9 @@ export interface CheckoutSuccess {
   demo: boolean;
 }
 
-/** Mercado Pago só é ativado quando o token está configurado. */
-export function isMercadoPagoEnabled(): boolean {
-  return Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN);
+/** Mercado Pago só é ativado quando o token está configurado (site ou Vercel). */
+export async function isMercadoPagoEnabled(): Promise<boolean> {
+  return Boolean(await getMercadoPagoAccessToken());
 }
 
 /** Alfabeto sem caracteres ambíguos (sem I/O/0). */
@@ -447,7 +448,7 @@ export async function createCheckout(
   }
 
   // ---------- 5. Mercado Pago: preferência + redirect ----------
-  if (isMercadoPagoEnabled()) {
+  if (await isMercadoPagoEnabled()) {
     const redirect = await createMercadoPagoPreference(
       code,
       payload.contato.email,
@@ -488,7 +489,7 @@ async function createMercadoPagoPreference(
   total: number,
   orderAccessToken?: string | null,
 ): Promise<string | null> {
-  const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN!;
+  const accessToken = (await getMercadoPagoAccessToken())!;
   // Pedido de convidado: os retornos do MP precisam carregar o token `?t=`
   // para a página do pedido abrir (auditoria A2).
   const guestTokenSuffix = orderAccessToken ? `?t=${orderAccessToken}` : "";

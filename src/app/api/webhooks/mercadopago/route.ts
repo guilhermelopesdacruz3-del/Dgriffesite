@@ -13,6 +13,7 @@ import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { processMercadoPagoPayment, isMercadoPagoEnabled } from "@/lib/checkout";
+import { getMercadoPagoAccessToken, getMercadoPagoWebhookSecret } from "@/lib/credenciais";
 
 export async function POST(request: Request) {
   try {
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Validação de assinatura (produção)
-    const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
+    const secret = await getMercadoPagoWebhookSecret();
     if (secret) {
       const signature = request.headers.get("x-signature") ?? "";
       const requestId = request.headers.get("x-request-id") ?? "";
@@ -47,9 +48,9 @@ export async function POST(request: Request) {
       }
     } else {
       // Consulta no gateway: nunca acreditamos no status que chega no webhook
-      if (isMercadoPagoEnabled()) {
+      if (await isMercadoPagoEnabled()) {
         const client = new MercadoPagoConfig({
-          accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
+          accessToken: (await getMercadoPagoAccessToken())!,
         });
         const mpPayment = await new Payment(client).get({ id: Number(id) });
         await processMercadoPagoPayment(

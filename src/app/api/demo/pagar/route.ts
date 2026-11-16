@@ -17,7 +17,7 @@ import { approveDemoOrder, isMercadoPagoEnabled } from "@/lib/checkout";
 const bodySchema = z.object({ code: z.string().min(5).max(14) });
 
 export async function POST(request: Request) {
-  if (process.env.NODE_ENV === "production" || isMercadoPagoEnabled()) {
+  if (process.env.NODE_ENV === "production" || (await isMercadoPagoEnabled())) {
     return NextResponse.json(
       {
         ok: false,
