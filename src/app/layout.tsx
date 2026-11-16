@@ -29,6 +29,8 @@ export const metadata: Metadata = {
     siteName: storeConfig.name,
     locale: "pt_BR",
     type: "website",
+    // Logo oficial — aparece na prévia quando o link é compartilhado
+    images: ["/logo-dgriffe.png"],
   },
   robots: { index: true, follow: true },
 };

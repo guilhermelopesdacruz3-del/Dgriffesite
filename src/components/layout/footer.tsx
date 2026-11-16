@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Facebook, Youtube, MapPin, Phone, Mail } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { ReabrirConsentimento } from "@/components/lgpd/cookie-consent";
@@ -34,7 +35,14 @@ export function Footer() {
       <Container className="grid grid-cols-1 gap-10 py-12 md:grid-cols-2 lg:grid-cols-5">
         {/* Marca + redes */}
         <div className="lg:col-span-2">
-          <p className="font-serif text-2xl tracking-tight">
+          <Image
+            src="/logo-dgriffe.png"
+            alt="Ótica D'Griffe Wonder's"
+            width={56}
+            height={56}
+            className="rounded-2xl"
+          />
+          <p className="mt-3 font-serif text-2xl tracking-tight">
             {storeConfig.shortName}
             <span className="text-accent-600">.</span>
           </p>

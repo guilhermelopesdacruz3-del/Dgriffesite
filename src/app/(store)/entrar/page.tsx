@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { LoginForm } from "@/components/auth/login-form";
 import { GoogleButton } from "@/components/auth/google-button";
@@ -26,7 +27,14 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <Container className="max-w-md py-14 md:py-20">
       <div className="rounded-3xl border border-stone-200 bg-white p-8 shadow-card md:p-10">
-        <h1 className="font-serif text-3xl leading-tight">Entrar</h1>
+        <Image
+          src="/logo-dgriffe.png"
+          alt="Ótica D'Griffe Wonder's"
+          width={64}
+          height={64}
+          className="rounded-2xl"
+        />
+        <h1 className="mt-4 font-serif text-3xl leading-tight">Entrar</h1>
         <p className="mt-2 text-sm text-stone-500">
           Ou{" "}
           <Link href="/criar-conta" className="text-accent-700 underline-offset-4 hover:underline">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Menu, Search, ShoppingBag, ScanFace, User, Heart, X } from "lucide-react";
 import { Container } from "@/components/ui/container";
@@ -41,11 +42,21 @@ export function Header({
         {/* Logo */}
         <Link
           href="/"
-          className="font-serif text-2xl tracking-tight md:text-3xl"
+          className="flex items-center gap-2.5"
           aria-label={`${storeConfig.name} — página inicial`}
         >
-          {storeConfig.shortName}
-          <span className="text-accent-600">.</span>
+          <Image
+            src="/logo-dgriffe.png"
+            alt=""
+            width={40}
+            height={40}
+            priority
+            className="rounded-xl"
+          />
+          <span className="font-serif text-2xl tracking-tight md:text-3xl">
+            {storeConfig.shortName}
+            <span className="text-accent-600">.</span>
+          </span>
         </Link>
 
         {/* Navegação desktop */}
